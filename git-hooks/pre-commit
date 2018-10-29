@@ -1,0 +1,2 @@
+# Run PHP code sniffer before committing to git
+vendor/bin/phpcs
