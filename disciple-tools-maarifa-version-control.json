@@ -1,6 +1,26 @@
 {
   "name": "Disciple Tools - Maarifa",
   "version": "0.1.0",
-  "details_url": "https://github.com/cairocoder01/dt-maarifa/releases/tag/0.1",
   "download_url": "https://github.com/cairocoder01/dt-maarifa/releases/download/0.1/dt-maarifa.zip"
+
+  "homepage": "https://github.com/cairocoder01/dt-maarifa",
+  "requires": "4.7",
+  "tested": "4.9.4",
+  "last_updated": "2018-10-31 00:00:00",
+  "upgrade_notice": "Here's why you should upgrade...",
+
+  "author": "cairocoder01",
+  "author_homepage": "https://github.com/cairocoder01",
+
+  "sections": {
+    "description": "Disciple Tools - Maarifa integrates the two platforms.",
+    "installation": "(Required) You must have Disciple.Tools Theme installed before using this plugin. <br><br>Once Disciple.Tools is installed, you can use the normal Plugin system to install the plugin.",
+    "changelog": "This is the alpha release version of the plugin."
+  },
+
+  "rating": 0,
+  "num_ratings": 0,
+
+  "downloaded": 1,
+  "active_installs": 1
 }

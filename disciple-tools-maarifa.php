@@ -152,7 +152,7 @@ class DT_Maarifa {
         Puc_v4_Factory::buildUpdateChecker(
             'https://raw.githubusercontent.com/cairocoder01/dt-maarifa/master/disciple-tools-maarifa-version-control.json',
             __FILE__,
-            'disciple-tools-maarifa'
+            'dt-maarifa'
         );
 
         // Internationalize the text strings used.
