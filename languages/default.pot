@@ -116,8 +116,8 @@ msgstr ""
 
 #. Description of the plugin/theme
 msgid ""
-"Disciple Tools - Maarifa exposes data needed "
-"for the mobile app"
+"Disciple Tools - Maarifa integrates the two "
+"platforms"
 msgstr ""
 
 #. Author URI of the plugin/theme

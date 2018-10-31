@@ -2,26 +2,18 @@
 /**
  * Plugin Name: Disciple Tools - Maarifa
  * Plugin URI: https://github.com/cairocoder01/dt-maarifa
- * Description: Disciple Tools - Maarifa is intended to help developers and integrator jumpstart their extension
- * of the Disciple Tools system.
+ * Description: Disciple Tools - Maarifa integrates the two platforms.
  * Version:  0.1.0
- * Author URI: https://github.com/DiscipleTools
- * GitHub Plugin URI: https://github.com/DiscipleTools/disciple-tools-maarifa
+ * Author URI: https://github.com/cairocoder01
+ * GitHub Plugin URI: https://github.com/cairocoder01/dt-maarifa
  * Requires at least: 4.7.0
  * (Requires 4.7+ because of the integration of the REST API at 4.7 and the security requirements of this milestone version.)
  * Tested up to: 4.9
  *
- * @package Disciple_Tools
- * @link    https://github.com/DiscipleTools
+ * @package Disciple_Tools_Maarifa
+ * @link    https://github.com/cairocoder01
  * @license GPL-2.0 or later
  *          https://www.gnu.org/licenses/gpl-2.0.html
- */
-
-/*******************************************************************
- * Using the Maarifa
- * The Disciple Tools maarifa is intended to accelerate integrations and extensions to the Disciple Tools system.
- * This basic plugin starter has some of the basic elements to quickly launch and extension project in the pattern of
- * the Disciple Tools system.
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -147,9 +139,9 @@ class DT_Maarifa {
     private function setup_actions() {
 
         // Check for plugin updates
-        /*if ( ! class_exists( 'Puc_v4_Factory' ) ) {
+        if ( ! class_exists( 'Puc_v4_Factory' ) ) {
             require( $this->includes_path . 'admin/libraries/plugin-update-checker/plugin-update-checker.php' );
-        }*/
+        }
         /**
          * Below is the publicly hosted .json file that carries the version information. This file can be hosted
          * anywhere as long as it is publicly accessible. You can download the version file listed below and use it as
@@ -157,11 +149,11 @@ class DT_Maarifa {
          * Also, see the instructions for version updating to understand the steps involved.
          * @see https://github.com/DiscipleTools/disciple-tools-version-control/wiki/How-to-Update-the-Starter-Plugin
          */
-        /*Puc_v4_Factory::buildUpdateChecker(
-            'https://raw.githubusercontent.com/DiscipleTools/disciple-tools-version-control/master/disciple-tools-maarifa-version-control.json',
+        Puc_v4_Factory::buildUpdateChecker(
+            'https://raw.githubusercontent.com/cairocoder01/dt-maarifa/master/disciple-tools-maarifa-version-control.json',
             __FILE__,
             'disciple-tools-maarifa'
-        );*/
+        );
 
         // Internationalize the text strings used.
         add_action( 'plugins_loaded', array( $this, 'i18n' ), 2 );
