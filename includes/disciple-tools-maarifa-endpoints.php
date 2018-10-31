@@ -58,6 +58,7 @@ class Disciple_Tools_Maarifa_Endpoints
             $args['capabilities'][] = 'view_any_contacts';
 
             $args['capabilities'][] = 'read_location';
+            $args['capabilities'][] = 'publish_locations';
         }
 
         return $args;
