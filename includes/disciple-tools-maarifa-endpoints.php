@@ -58,6 +58,7 @@ class Disciple_Tools_Maarifa_Endpoints
     }
     public function site_link_capabilities( $args ) {
         if ($args['connection_type'] === 'maarifa_link') {
+            $args['capabilities'][] = 'create_contacts';
             $args['capabilities'][] = 'update_any_contacts';
             $args['capabilities'][] = 'view_any_contacts';
 
