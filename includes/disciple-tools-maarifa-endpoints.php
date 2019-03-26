@@ -46,19 +46,22 @@ class Disciple_Tools_Maarifa_Endpoints
     {
         $this->namespace = $this->context . "/v" . intval( $this->version );
 
+        add_filter( 'site_link_type', [ $this, 'site_link_type' ], 10, 1 );
         add_filter( 'site_link_type_capabilities', [ $this, 'site_link_capabilities' ], 10, 1 );
     } // End __construct()
 
+    public function site_link_type( $types ) {
+        if ( !isset( $types["maarifa_link"] ) ) {
+            $types["maarifa_link"] = "Maarifa Response System Link";
+        }
+        return $types;
+    }
     public function site_link_capabilities( $args ) {
-        if ('contact_sharing' === $args['connection_type']) {
-            $args['capabilities'][] = 'access_contacts';
-            $args['capabilities'][] = 'create_contacts';
-            $args['capabilities'][] = 'delete_any_contacts';
+        if ($args['connection_type'] === 'maarifa_link') {
             $args['capabilities'][] = 'update_any_contacts';
             $args['capabilities'][] = 'view_any_contacts';
 
             $args['capabilities'][] = 'read_location';
-            $args['capabilities'][] = 'publish_locations';
         }
 
         return $args;
