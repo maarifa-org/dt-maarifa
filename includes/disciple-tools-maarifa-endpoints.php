@@ -48,14 +48,53 @@ class Disciple_Tools_Maarifa_Endpoints
 
         add_filter( 'site_link_type', [ $this, 'site_link_type' ], 10, 1 );
         add_filter( 'site_link_type_capabilities', [ $this, 'site_link_capabilities' ], 10, 1 );
+
+        add_action( 'init', [ $this, 'register_maarifa_source' ] );
     } // End __construct()
 
+
+    /**
+     * Insert 'Maarifa' into list of contact sources
+     *
+     * @since 0.2
+     */
+    public function register_maarifa_source() {
+
+        $lists = dt_get_option( "dt_site_custom_lists" );
+        if ( isset( $lists, $lists["sources"] ) ) {
+            if ( !isset( $lists["sources"]["maarifa"] )) {
+                $lists["sources"]["maarifa"] = [
+                    'label' => "Maarifa",
+                    'key' => "maarifa",
+                    'description' => 'Maarifa.org Response System',
+                    'enabled' => true,
+                ];
+                update_option( "dt_site_custom_lists", $lists );
+            }
+        }
+    }
+
+    /**
+     * Create new Site Link Type for Maarifa
+     *
+     * @since 0.1
+     * @param $types
+     * @return mixed
+     */
     public function site_link_type( $types ) {
         if ( !isset( $types["maarifa_link"] ) ) {
             $types["maarifa_link"] = "Maarifa Response System Link";
         }
         return $types;
     }
+
+    /**
+     * Add needed permissions to Maarifa Site Link Type
+     *
+     * @since 0.1
+     * @param $args
+     * @return mixed
+     */
     public function site_link_capabilities( $args ) {
         if ($args['connection_type'] === 'maarifa_link') {
             $args['capabilities'][] = 'create_contacts';
