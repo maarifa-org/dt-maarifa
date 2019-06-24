@@ -19,6 +19,7 @@
 if ( ! defined( 'ABSPATH' ) ) {
     exit; // Exit if accessed directly
 }
+$dt_maarifa_required_dt_theme_version = '0.19.0';
 
 /**
  * Gets the instance of the `DT_Maarifa` class.
@@ -28,15 +29,28 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @return object
  */
 function dt_maarifa() {
-    $current_theme = wp_get_theme()->get( "Name" );
+    global $dt_maarifa_required_dt_theme_version;
+    $wp_theme = wp_get_theme();
+    $version = $wp_theme->version;
 
-    if ( 'Disciple Tools' == $current_theme || dt_is_child_theme_of_disciple_tools() ) {
-        return DT_Maarifa::get_instance();
-    }
-    else {
+    /*
+     * Check if the Disciple.Tools theme is loaded and is the latest required version
+     */
+    if ( 'disciple-tools-theme' !== $wp_theme->get_template() || $version < $dt_maarifa_required_dt_theme_version ) {
         add_action( 'admin_notices', 'dt_maarifa_hook_admin_notice' );
-        add_action( 'wp_ajax_dismissed_notice_handler', 'dt_maarifa_ajax_notice_handler' );
-        return new WP_Error( 'current_theme_not_dt', 'Disciple Tools Theme not active.' );
+        add_action( 'wp_ajax_dismissed_notice_handler', 'dt_hook_ajax_notice_handler' );
+        return new WP_Error( 'current_theme_not_dt', 'Disciple Tools Theme not active or not latest version.' );
+    }
+    /**
+     * Load useful function from the theme
+     */
+    if ( !defined( 'DT_FUNCTIONS_READY' ) ){
+        require_once get_template_directory() . '/dt-core/global-functions.php';
+    }
+
+    $is_rest = dt_is_rest();
+    if ( !$is_rest || strpos( dt_get_url_path(), 'sample' ) != false ){
+        return DT_Maarifa::get_instance();
     }
 
 }
@@ -102,6 +116,7 @@ class DT_Maarifa {
      * @return void
      */
     private function includes() {
+        require_once( 'includes/admin/admin-menu-and-tabs.php' );
         require_once( 'includes/disciple-tools-maarifa-endpoints.php' );
     }
 
@@ -126,7 +141,7 @@ class DT_Maarifa {
 
         // Admin and settings variables
         $this->token             = 'dt_maarifa';
-        $this->version             = '0.1';
+        $this->version             = '0.2';
     }
 
     /**
@@ -138,22 +153,24 @@ class DT_Maarifa {
      */
     private function setup_actions() {
 
-        // Check for plugin updates
-        if ( ! class_exists( 'Puc_v4_Factory' ) ) {
-            require( $this->includes_path . 'admin/libraries/plugin-update-checker/plugin-update-checker.php' );
+        if ( is_admin() ) {
+            // Check for plugin updates
+            if ( ! class_exists( 'Puc_v4_Factory' ) ) {
+                require( get_template_directory() . '/dt-core/libraries/plugin-update-checker/plugin-update-checker.php' );
+            }
+            /**
+             * Below is the publicly hosted .json file that carries the version information. This file can be hosted
+             * anywhere as long as it is publicly accessible. You can download the version file listed below and use it as
+             * a template.
+             * Also, see the instructions for version updating to understand the steps involved.
+             * @see https://github.com/DiscipleTools/disciple-tools-version-control/wiki/How-to-Update-the-Starter-Plugin
+             */
+            Puc_v4_Factory::buildUpdateChecker(
+                'https://raw.githubusercontent.com/cairocoder01/dt-maarifa/master/disciple-tools-maarifa-version-control.json',
+                __FILE__,
+                'dt-maarifa'
+            );
         }
-        /**
-         * Below is the publicly hosted .json file that carries the version information. This file can be hosted
-         * anywhere as long as it is publicly accessible. You can download the version file listed below and use it as
-         * a template.
-         * Also, see the instructions for version updating to understand the steps involved.
-         * @see https://github.com/DiscipleTools/disciple-tools-version-control/wiki/How-to-Update-the-Starter-Plugin
-         */
-        Puc_v4_Factory::buildUpdateChecker(
-            'https://raw.githubusercontent.com/cairocoder01/dt-maarifa/master/disciple-tools-maarifa-version-control.json',
-            __FILE__,
-            'dt-maarifa'
-        );
 
         // Internationalize the text strings used.
         add_action( 'plugins_loaded', array( $this, 'i18n' ), 2 );
@@ -185,7 +202,7 @@ class DT_Maarifa {
      * @return void
      */
     public static function deactivation() {
-        delete_option( 'dismissed-dt-starter' );
+        delete_option( 'dismissed-dt-maarifa' );
     }
 
     /**
@@ -252,110 +269,45 @@ class DT_Maarifa {
 register_activation_hook( __FILE__, [ 'DT_Maarifa', 'activation' ] );
 register_deactivation_hook( __FILE__, [ 'DT_Maarifa', 'deactivation' ] );
 
-/**
- * Admin alert for when Disciple Tools Theme is not available
- */
-function dt_maarifa_no_disciple_tools_theme_found()
-{
-    ?>
-    <div class="notice notice-error">
-        <p><?php esc_html_e( "'Disciple Tools - Maarifa' requires 'Disciple Tools' theme to work. Please activate 'Disciple Tools' theme or deactivate 'Disciple Tools - Maarifa' plugin.", "dt_maarifa" ); ?></p>
-    </div>
-    <?php
-}
-
-/**
- * A simple function to assist with development and non-disruptive debugging.
- * -----------
- * -----------
- * REQUIREMENT:
- * WP Debug logging must be set to true in the wp-config.php file.
- * Add these definitions above the "That's all, stop editing! Happy blogging." line in wp-config.php
- * -----------
- * define( 'WP_DEBUG', true ); // Enable WP_DEBUG mode
- * define( 'WP_DEBUG_LOG', true ); // Enable Debug logging to the /wp-content/debug.log file
- * define( 'WP_DEBUG_DISPLAY', false ); // Disable display of errors and warnings
- * @ini_set( 'display_errors', 0 );
- * -----------
- * -----------
- * EXAMPLE USAGE:
- * (string)
- * write_log('THIS IS THE START OF MY CUSTOM DEBUG');
- * -----------
- * (array)
- * $an_array_of_things = ['an', 'array', 'of', 'things'];
- * write_log($an_array_of_things);
- * -----------
- * (object)
- * $an_object = new An_Object
- * write_log($an_object);
- */
-if ( !function_exists( 'dt_write_log' ) ) {
-    /**
-     * A function to assist development only.
-     * This function allows you to post a string, array, or object to the WP_DEBUG log.
-     *
-     * @param $log
-     */
-    function dt_write_log( $log )
-    {
-        if ( true === WP_DEBUG ) {
-            if ( is_array( $log ) || is_object( $log ) ) {
-                error_log( print_r( $log, true ) );
-            } else {
-                error_log( $log );
-            }
-        }
-    }
-}
-
-if ( ! function_exists( 'dt_is_child_theme_of_disciple_tools' ) ) {
-    /**
-     * Returns true if this is a child theme of Disciple Tools, and false if it is not.
-     *
-     * @return bool
-     */
-    function dt_is_child_theme_of_disciple_tools() : bool {
-        if ( get_template_directory() !== get_stylesheet_directory() ) {
-            $current_theme = wp_get_theme();
-            if ( 'disciple-tools-theme' == $current_theme->get( 'Template' ) ) {
-                return true;
-            }
-        }
-        return false;
-    }
-}
-
 function dt_maarifa_hook_admin_notice() {
+    global $dt_maarifa_required_dt_theme_version;
+    $wp_theme = wp_get_theme();
+    $current_version = $wp_theme->version;
+    $message = __( "'Disciple Tools - Maarifa' requires 'Disciple Tools' theme to work. Please activate 'Disciple Tools' theme or make sure it is latest version.", "dt_maarifa" );
+    if ( $wp_theme->get_template() === "disciple-tools-theme" ){
+        $message .= sprintf( esc_html__( 'Current Disciple Tools version: %1$s, required version: %2$s', 'dt_maarifa' ), esc_html( $current_version ), esc_html( $dt_maarifa_required_dt_theme_version ) );
+    }
     // Check if it's been dismissed...
-    if ( ! get_option( 'dismissed-dt-maarifa', false ) ) {
-        // multiple dismissible notice states ?>
-        <div class="notice notice-error notice-dt-maarifa is-dismissible" data-notice="dt-demo">
-            <p><?php esc_html_e( "'Disciple Tools - Maarifa' requires 'Disciple Tools' theme to work. Please activate 'Disciple Tools' theme or deactivate 'Disciple Tools - Maarifa'." ); ?></p>
+    if ( ! get_option( 'dismissed-dt-maarifa', false ) ) { ?>
+        <div class="notice notice-error notice-dt-maarifa is-dismissible" data-notice="dt-maarifa">
+            <p><?php echo esc_html( $message );?></p>
         </div>
         <script>
             jQuery(function($) {
-                $( document ).on( 'click', '.notice-dt-starter .notice-dismiss', function () {
-                    let type = $( this ).closest( '.notice-dt-starter' ).data( 'notice' );
-                    $.ajax( ajaxurl,
-                        {
-                            type: 'POST',
-                            data: {
-                                action: 'dismissed_notice_handler',
-                                type: type,
-                            }
-                        } );
-                } );
+                $( document ).on( 'click', '.notice-dt-maarifa .notice-dismiss', function () {
+                    $.ajax( ajaxurl, {
+                        type: 'POST',
+                        data: {
+                            action: 'dismissed_notice_handler',
+                            type: 'dt-maarifa',
+                            security: '<?php echo esc_html( wp_create_nonce( 'wp_rest_dismiss' ) ) ?>'
+                        }
+                    })
+                });
             });
         </script>
-
     <?php }
 }
 
 /**
  * AJAX handler to store the state of dismissible notices.
  */
-function dt_maarifa_ajax_notice_handler() {
-    $type = 'dt-maarifa';
-    update_option( 'dismissed-' . $type, true );
+if ( !function_exists( "dt_hook_ajax_notice_handler" )){
+    function dt_hook_ajax_notice_handler(){
+        check_ajax_referer( 'wp_rest_dismiss', 'security' );
+        if ( isset( $_POST["type"] ) ){
+            $type = sanitize_text_field( wp_unslash( $_POST["type"] ) );
+            update_option( 'dismissed-' . $type, true );
+        }
+    }
 }
