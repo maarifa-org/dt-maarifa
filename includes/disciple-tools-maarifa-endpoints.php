@@ -48,6 +48,7 @@ class Disciple_Tools_Maarifa_Endpoints
 
         add_filter( 'site_link_type', [ $this, 'site_link_type' ], 10, 1 );
         add_filter( 'site_link_type_capabilities', [ $this, 'site_link_capabilities' ], 10, 1 );
+        add_action( 'dt_post_created', [ $this, 'hook_post_created' ], 10, 3 );
 
         add_action( 'init', [ $this, 'register_maarifa_source' ] );
     } // End __construct()
@@ -105,6 +106,36 @@ class Disciple_Tools_Maarifa_Endpoints
         }
 
         return $args;
+    }
+
+    /**
+     * Hook for when a new DT post is created.
+     * If it is a new contact with the maarifa source, share it with the user
+     * configured in the plugin settings.
+     *
+     * @param $post_type
+     * @param $post_id
+     * @param $post
+     */
+    public function hook_post_created( $post_type, $post_id, $post ) {
+        // If this is a new contact...
+        if ( $post_type === 'contacts' ) {
+
+            if ( isset( $post['sources'] ) && isset( $post['sources']['values'] ) ) {
+                $maarifa_source = array_search( 'maarifa', array_column( $post['sources']['values'], 'value' ) );
+
+                // ...and if this user has the maarifa source...
+                if ($maarifa_source !== false) {
+                    // Get auto-share user from plugin options
+                    $share_user = get_option( 'dt_maarifa_share_user_id' );
+
+                    if ( !empty( $share_user )) {
+                        // Assign new contact to given user
+                        DT_Posts::add_shared( $post_type, $post_id, $share_user, null, false );
+                    }
+                }
+            }
+        }
     }
 }
 

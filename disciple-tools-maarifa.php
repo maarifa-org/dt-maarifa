@@ -48,10 +48,7 @@ function dt_maarifa() {
         require_once get_template_directory() . '/dt-core/global-functions.php';
     }
 
-    $is_rest = dt_is_rest();
-    if ( !$is_rest || strpos( dt_get_url_path(), 'sample' ) != false ){
-        return DT_Maarifa::get_instance();
-    }
+    return DT_Maarifa::get_instance();
 
 }
 add_action( 'plugins_loaded', 'dt_maarifa' );
