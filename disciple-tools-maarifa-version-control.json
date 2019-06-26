@@ -1,13 +1,13 @@
 {
   "name": "Disciple Tools - Maarifa",
-  "version": "0.2.0",
-  "download_url": "https://github.com/cairocoder01/dt-maarifa/archive/0.2.zip",
+  "version": "0.3.0",
+  "download_url": "https://github.com/cairocoder01/dt-maarifa/archive/0.3.zip",
 
   "homepage": "https://github.com/cairocoder01/dt-maarifa",
   "requires": "4.7",
   "tested": "4.9.4",
-  "last_updated": "2019-03-27 00:00:00",
-  "upgrade_notice": "Automatically add Maarifa source",
+  "last_updated": "2019-06-26 00:00:00",
+  "upgrade_notice": "Allows auto-sharing all contacts from the Maarifa source with a chosen user",
 
   "author": "cairocoder01",
   "author_homepage": "https://github.com/cairocoder01",
