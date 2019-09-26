@@ -115,6 +115,7 @@ class DT_Maarifa {
     private function includes() {
         require_once( 'includes/admin/admin-menu-and-tabs.php' );
         require_once( 'includes/disciple-tools-maarifa-endpoints.php' );
+        require_once( 'includes/disciple-tools-maarifa-tile.php' );
     }
 
     /**
