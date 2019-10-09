@@ -3,12 +3,12 @@
  * Plugin Name: Disciple Tools - Maarifa
  * Plugin URI: https://github.com/cairocoder01/dt-maarifa
  * Description: Disciple Tools - Maarifa integrates the two platforms by providing access for Maarifa to create and read contacts in Disciple Tools.
- * Version:  0.4.0
+ * Version:  0.4.1
  * Author URI: https://github.com/cairocoder01
  * GitHub Plugin URI: https://github.com/cairocoder01/dt-maarifa
  * Requires at least: 4.7.0
  * (Requires 4.7+ because of the integration of the REST API at 4.7 and the security requirements of this milestone version.)
- * Tested up to: 4.9
+ * Tested up to: 5.2.3
  *
  * @package Disciple_Tools_Maarifa
  * @link    https://github.com/cairocoder01
@@ -19,7 +19,7 @@
 if ( ! defined( 'ABSPATH' ) ) {
     exit; // Exit if accessed directly
 }
-$dt_maarifa_required_dt_theme_version = '0.19.0';
+$dt_maarifa_required_dt_theme_version = '0.23.0';
 
 /**
  * Gets the instance of the `DT_Maarifa` class.
@@ -36,7 +36,8 @@ function dt_maarifa() {
     /*
      * Check if the Disciple.Tools theme is loaded and is the latest required version
      */
-    if ( 'disciple-tools-theme' !== $wp_theme->get_template() || $version < $dt_maarifa_required_dt_theme_version ) {
+    if ( ( 'disciple-tools-theme' !== $wp_theme->get_template() && 'disciple-tools-theme-master' !== $wp_theme->get_template() )
+        || $version < $dt_maarifa_required_dt_theme_version ) {
         add_action( 'admin_notices', 'dt_maarifa_hook_admin_notice' );
         add_action( 'wp_ajax_dismissed_notice_handler', 'dt_hook_ajax_notice_handler' );
         return new WP_Error( 'current_theme_not_dt', 'Disciple Tools Theme not active or not latest version.' );
@@ -139,7 +140,7 @@ class DT_Maarifa {
 
         // Admin and settings variables
         $this->token             = 'dt_maarifa';
-        $this->version             = '0.4';
+        $this->version             = '0.4.1';
     }
 
     /**
