@@ -3,7 +3,7 @@
  * Plugin Name: Disciple Tools - Maarifa
  * Plugin URI: https://github.com/cairocoder01/dt-maarifa
  * Description: Disciple Tools - Maarifa integrates the two platforms by providing access for Maarifa to create and read contacts in Disciple Tools.
- * Version:  0.4.1
+ * Version:  0.5.0
  * Author URI: https://github.com/cairocoder01
  * GitHub Plugin URI: https://github.com/cairocoder01/dt-maarifa
  * Requires at least: 4.7.0
@@ -115,7 +115,8 @@ class DT_Maarifa {
      */
     private function includes() {
         require_once( 'includes/admin/admin-menu-and-tabs.php' );
-        require_once( 'includes/disciple-tools-maarifa-endpoints.php' );
+        require_once( 'includes/disciple-tools-maarifa-sitelink.php' );
+        require_once( 'includes/disciple-tools-maarifa-hooks.php' );
         require_once( 'includes/disciple-tools-maarifa-tile.php' );
     }
 
@@ -265,8 +266,8 @@ class DT_Maarifa {
 // end main plugin class
 
 // Register activation hook.
-register_activation_hook( __FILE__, [ 'DT_Maarifa', 'activation' ] );
-register_deactivation_hook( __FILE__, [ 'DT_Maarifa', 'deactivation' ] );
+register_activation_hook( __FILE__, array( 'DT_Maarifa', 'activation' ) );
+register_deactivation_hook( __FILE__, array( 'DT_Maarifa', 'deactivation' ) );
 
 function dt_maarifa_hook_admin_notice() {
     global $dt_maarifa_required_dt_theme_version;

@@ -21,8 +21,7 @@ class Disciple_Tools_Maarifa_Tile
      * @static
      * @return Disciple_Tools_Maarifa_Tile instance
      */
-    public static function instance()
-    {
+    public static function instance() {
         if (is_null( self::$_instance )) {
             self::$_instance = new self();
         }
@@ -35,13 +34,12 @@ class Disciple_Tools_Maarifa_Tile
      * @access public
      * @since  0.1.0
      */
-    public function __construct()
-    {
-        add_filter( "dt_custom_fields_settings", [ $this, "dt_contact_fields" ], 10, 2 );
+    public function __construct() {
+        add_filter( "dt_custom_fields_settings", array( $this, "dt_contact_fields" ), 10, 2 );
 
-        add_filter( "dt_details_additional_section_ids", [ $this, "dt_maarifa_declare_section_id" ], 999, 2 );
-        add_action( "dt_details_additional_section", [ $this, "dt_maarifa_add_section" ] );
-        add_filter( "dt_comments_additional_sections", [ $this, "add_comment_section" ], 10, 2 );
+        add_filter( "dt_details_additional_section_ids", array( $this, "dt_maarifa_declare_section_id" ), 999, 2 );
+        add_action( "dt_details_additional_section", array( $this, "dt_maarifa_add_section" ) );
+        add_filter( "dt_comments_additional_sections", array( $this, "add_comment_section" ), 10, 2 );
     } // End __construct()
 
     public static function dt_contact_fields( array $fields, string $post_type = ""){
@@ -51,11 +49,11 @@ class Disciple_Tools_Maarifa_Tile
             //check if the language field is already set
             if ( !isset( $fields["maarifa_data"] )){
                 //define the language field
-                $fields["maarifa_data"] = [
+                $fields["maarifa_data"] = array(
                     "name" => __( "Maarifa Data", "dt_maarifa" ),
                     "type" => "array",
-                    "default" => []
-                ];
+                    "default" => array()
+                );
             }
         }
         //don't forget to return the update fields array
@@ -85,7 +83,7 @@ class Disciple_Tools_Maarifa_Tile
         if ( $section == "contact_maarifa_data" ) {
             $contact_id    = get_the_ID();
             $contact       = Disciple_Tools_Contacts::get_contact( $contact_id, true, true );
-            $maarifa_data = [];
+            $maarifa_data = array();
             if ( isset( $contact["maarifa_data"] ) ) {
                 $maarifa_data = maybe_unserialize( $contact["maarifa_data"] );
             }
@@ -137,10 +135,10 @@ class Disciple_Tools_Maarifa_Tile
 
     public function add_comment_section( $sections, $post_type ) {
         if ( $post_type === "contacts" ) {
-            $sections[] = [
+            $sections[] = array(
                 "key" => "maarifa",
                 "label" => __( "Maarifa", "dt_maarifa" )
-            ];
+            );
         }
         return $sections;
     }

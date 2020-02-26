@@ -47,8 +47,8 @@ class DT_Maarifa_Menu {
      * @since 0.1
      */
     public function register_menu() {
-        add_menu_page( __( 'Extensions (DT)', 'disciple_tools' ), __( 'Extensions (DT)', 'disciple_tools' ), 'manage_dt', 'dt_extensions', [ $this, 'extensions_menu' ], 'dashicons-admin-generic', 59 );
-        add_submenu_page( 'dt_extensions', __( 'Maarifa Plugin', 'dt_maarifa' ), __( 'Maarifa Plugin', 'dt_maarifa' ), 'manage_dt', $this->token, [ $this, 'content' ] );
+        add_menu_page( __( 'Extensions (DT)', 'disciple_tools' ), __( 'Extensions (DT)', 'disciple_tools' ), 'manage_dt', 'dt_extensions', array( $this, 'extensions_menu' ), 'dashicons-admin-generic', 59 );
+        add_submenu_page( 'dt_extensions', __( 'Maarifa Plugin', 'dt_maarifa' ), __( 'Maarifa Plugin', 'dt_maarifa' ), 'manage_dt', $this->token, array( $this, 'content' ) );
     }
     /**
      * Menu stub. Replaced when Disciple Tools Theme fully loads.
@@ -129,11 +129,11 @@ class DT_Maarifa_Tab_General
     public function main_column() {
         $share_user_id = get_option( "dt_maarifa_share_user_id" );
         $potential_user_list = get_users(
-            [
-                'role__in' => [ 'dispatcher', 'administrator', 'dt_admin', 'multiplier', 'marketer', 'strategist' ],
+            array(
+                'role__in' => array( 'dispatcher', 'administrator', 'dt_admin', 'multiplier', 'marketer', 'strategist' ),
                 'order'    => 'ASC',
                 'orderby'  => 'display_name',
-            ]
+            )
         );
         ?>
 
