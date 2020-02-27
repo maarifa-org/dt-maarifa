@@ -39,7 +39,8 @@ class Disciple_Tools_Maarifa_Hooks
      */
     public function __construct() {
         add_action( 'dt_post_created', array( $this, 'post_created' ), 10, 3 );
-        add_action( 'dt_post_updated', array( $this, 'post_updated' ), 10, 3 );
+        add_action( 'dt_post_updated', array( $this, 'post_updated' ), 10, 4 );
+        add_action( 'dt_comment_created', array( $this, 'comment_created' ), 10, 4 );
     } // End __construct()
 
     /**
@@ -77,6 +78,8 @@ class Disciple_Tools_Maarifa_Hooks
     /**
      * Hook for when a DT post is updated.
      * Capture dt_post_updated actions to forward back to Maarifa.
+     * Ignores: non-contacts, requires_update, contacts without maarifa_data,
+     * updates from Maarifa, and reminders (requires_update)
      *
      * @param $post_type
      * @param $post_id
@@ -87,7 +90,79 @@ class Disciple_Tools_Maarifa_Hooks
      */
     public function post_updated( $post_type, $post_id, $initial_fields, $existing_post ) {
 
+        dt_write_log( 'hook:post_updated' );
+
+        // Only send back contacts post types
+        if ( $post_type !== 'contacts' ) {
+            return;
+        }
+
+        // If this is just a notification about requiring an update, no need to sync
+        if ( isset( $initial_fields['requires_update'] ) && $initial_fields['requires_update']) {
+            return;
+        }
+
+        // todo: check for automated updates from RS
+
+        // Check if this is a Maarifa-sourced contact
+        $is_maarifa = false;
+        if ( isset( $existing_post["maarifa_data"] ) ) {
+            $maarifa_data = maybe_unserialize( $existing_post["maarifa_data"] );
+            if ( isset( $maarifa_data["id"] ) ) {
+                $is_maarifa = true;
+            }
+        }
+        // If not, don't proceed
+        if ( !$is_maarifa ) {
+            return;
+        }
+        dt_write_log( serialize( $existing_post ) );
+        dt_write_log( serialize( $initial_fields ) );
+
+        // Get Maarifa site links
+        $site_links = Site_Link_System::get_list_of_sites_by_type( array( 'maarifa_link' ) );
+        if ( empty( $site_links ) ) {
+            return;
+        }
+
+        foreach ($site_links as $site_link ) {
+            dt_write_log( serialize( $site_link ) );
+             $site = Site_Link_System::get_site_connection_vars( $site_link['id'] );
+            dt_write_log( serialize( $site ) );
+            // todo: POST to $site['url'] with $site['transfer_token']
+        }
+        // todo: if Maarifa and has RS ID
         // todo: something
+    }
+
+    /**
+     * Hook for when a DT comment is updated.
+     * Capture dt_comment_created actions to forward back to Maarifa.
+     * Ignores: non-contacts, non-comments, contacts without maarifa_data,
+     * updates from Maarifa, and reminders (action not actually called for reminders/triggers)
+     *
+     * @param $post_type
+     * @param $post_id
+     * @param $created_comment_id
+     * @param $type - Comment type (e.g. "comment")
+     */
+    public function comment_created( $post_type, $post_id, $created_comment_id, $type ) {
+
+        dt_write_log( 'hook:comment_created' );
+
+        // Only send back contacts post types and comments
+        if ( $post_type !== 'contacts' || $type !== 'comment') {
+            return;
+        }
+
+        //todo: get comment and post
+        //todo: get site link
+        dt_write_log( serialize( array(
+            'post_type' => $post_type,
+            'post_id' => $post_id,
+            'created_comment_id' => $created_comment_id,
+            'type' => $type
+        )));
     }
 }
 

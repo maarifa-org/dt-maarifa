@@ -43,7 +43,6 @@ class Disciple_Tools_Maarifa_Tile
     } // End __construct()
 
     public static function dt_contact_fields( array $fields, string $post_type = ""){
-        dt_write_log( __METHOD__ . ': start' );
         //check if we are dealing with a contact
         if ($post_type === "contacts"){
             //check if the language field is already set

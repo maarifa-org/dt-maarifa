@@ -141,7 +141,7 @@ class DT_Maarifa {
 
         // Admin and settings variables
         $this->token             = 'dt_maarifa';
-        $this->version             = '0.4.1';
+        $this->version             = '0.5.0';
     }
 
     /**
