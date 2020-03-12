@@ -105,15 +105,16 @@ class Disciple_Tools_Maarifa_Hooks
         // todo: check for automated updates from RS
 
         // Check if this is a Maarifa-sourced contact
-        $is_maarifa = false;
+        $maarifa_contact_id = null;
         if ( isset( $existing_post["maarifa_data"] ) ) {
             $maarifa_data = maybe_unserialize( $existing_post["maarifa_data"] );
             if ( isset( $maarifa_data["id"] ) ) {
-                $is_maarifa = true;
+                $maarifa_contact_id = $maarifa_data["id"];
+                dt_write_log( 'maarifa id:' . $maarifa_contact_id );
             }
         }
-        // If not, don't proceed
-        if ( !$is_maarifa ) {
+        // If not Maarifa-sourced, don't proceed
+        if ( empty( $maarifa_contact_id ) ) {
             return;
         }
         dt_write_log( serialize( $existing_post ) );
@@ -125,14 +126,20 @@ class Disciple_Tools_Maarifa_Hooks
             return;
         }
 
+        $data = array(
+            'type' => 'update',
+            'values' => $initial_fields,
+            'existing' => $existing_post
+        );
+
+        // Send the data to each Maarifa site link (there should only be one, but just in case...)
         foreach ($site_links as $site_link ) {
             dt_write_log( serialize( $site_link ) );
              $site = Site_Link_System::get_site_connection_vars( $site_link['id'] );
             dt_write_log( serialize( $site ) );
-            // todo: POST to $site['url'] with $site['transfer_token']
+
+            $this->post_to_maarifa( $site['url'], $site['transfer_token'], $maarifa_contact_id, $data );
         }
-        // todo: if Maarifa and has RS ID
-        // todo: something
     }
 
     /**
@@ -163,6 +170,37 @@ class Disciple_Tools_Maarifa_Hooks
             'created_comment_id' => $created_comment_id,
             'type' => $type
         )));
+    }
+
+    /**
+     * Send all data to the Maarifa RS endpoint
+     * @param string $site_url
+     * @param string $transfer_token
+     * @param int $contact_id
+     * @param object $data
+     * @since 0.5
+     */
+    private function post_to_maarifa( $site_url, $transfer_token, $contact_id, $data ) {
+
+        $is_local = strrpos( $site_url, 'local' ) > -1;
+        $url = $is_local ? 'http://' : 'https://';
+        $url .= str_replace( '.lan', '.org', $site_url );
+        $url .= "/response/api/contacts/$contact_id/dt-activity";
+        $args = array(
+            'method' => 'POST',
+            'headers' => array(
+                'Authorization' => 'Bearer ' . $transfer_token,
+                'Content-Type' => 'application/json'
+            ),
+            'body' => json_encode( $data )
+        );
+        dt_write_log( $url );
+        $result = wp_remote_post( $url, $args );
+        // If there is an error, we'll capture it and log it,
+        // but then move on and not throw it to the user
+        if ( is_wp_error( $result ) ){
+            dt_write_log( 'Error sending to Maarifa: ' . serialize( $result ) );
+        }
     }
 }
 
