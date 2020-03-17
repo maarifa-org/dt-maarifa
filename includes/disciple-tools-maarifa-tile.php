@@ -45,13 +45,20 @@ class Disciple_Tools_Maarifa_Tile
     public static function dt_contact_fields( array $fields, string $post_type = ""){
         //check if we are dealing with a contact
         if ($post_type === "contacts"){
-            //check if the language field is already set
+            // Define a field to store misc Maarifa data for the tile
             if ( !isset( $fields["maarifa_data"] )){
-                //define the language field
                 $fields["maarifa_data"] = array(
                     "name" => __( "Maarifa Data", "dt_maarifa" ),
                     "type" => "array",
                     "default" => array()
+                );
+            }
+            // Define a field to detect when post updates come from Maarifa so we can avoid sending it back again
+            if ( !isset( $fields["maarifa_sync"] )){
+                $fields["maarifa_sync"] = array(
+                    "name" => __( "Maarifa Sync", "dt_maarifa" ),
+                    "type" => "bool",
+                    "default" => false
                 );
             }
         }

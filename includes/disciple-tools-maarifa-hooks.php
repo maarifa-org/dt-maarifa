@@ -102,7 +102,10 @@ class Disciple_Tools_Maarifa_Hooks
             return;
         }
 
-        // todo: check for automated updates from RS
+        // Check for automated updates from RS
+        if ( isset( $initial_fields['maarifa_sync'] ) && $initial_fields['maarifa_sync'] == true ) {
+            return;
+        }
 
         // Check if this is a Maarifa-sourced contact
         $maarifa_contact_id = null;
