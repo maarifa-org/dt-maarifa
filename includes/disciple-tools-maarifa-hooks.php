@@ -159,6 +159,12 @@ class Disciple_Tools_Maarifa_Hooks
     public function comment_created( $post_type, $post_id, $created_comment_id, $type ) {
 
         dt_write_log( 'hook:comment_created' );
+        dt_write_log( json_encode( array(
+            'post_type' => $post_type,
+            'post_id' => $post_id,
+            'created_comment_id' => $created_comment_id,
+            'type' => $type
+        )));
 
         // Only send back contacts post types and comments
         if ( $post_type !== 'contacts' || $type !== 'comment') {
@@ -166,13 +172,59 @@ class Disciple_Tools_Maarifa_Hooks
         }
 
         //todo: get comment and post
-        //todo: get site link
-        dt_write_log( serialize( array(
-            'post_type' => $post_type,
-            'post_id' => $post_id,
-            'created_comment_id' => $created_comment_id,
-            'type' => $type
-        )));
+        // Get the post
+        $post = DT_Posts::get_post( $post_type, $post_id );
+//        dt_write_log(json_encode($post));
+
+        // Check if this is a Maarifa-sourced contact
+        $maarifa_contact_id = null;
+        if ( isset( $post["maarifa_data"] ) ) {
+            $maarifa_data = maybe_unserialize( $post["maarifa_data"] );
+            if ( isset( $maarifa_data["id"] ) ) {
+                $maarifa_contact_id = $maarifa_data["id"];
+//                dt_write_log( 'maarifa id:' . $maarifa_contact_id );
+            }
+        }
+        // If not Maarifa-sourced, don't proceed
+        if ( empty( $maarifa_contact_id ) ) {
+            return;
+        }
+
+        // Get the comment itself
+        $comments = DT_Posts::get_post_comments( $post_type, $post_id );
+        $comment = null;
+        if ( !empty( $comments ) && !empty( $comments['comments'] )) {
+            $comment_idx = array_search( $created_comment_id, array_column( $comments['comments'], 'comment_ID' ) );
+            if ($comment_idx !== false) {
+                $comment = $comments['comments'][$comment_idx];
+            }
+        }
+
+        // If we couldn't find the comment, don't proceed
+        if ( empty( $comment ) ) {
+            return;
+        }
+
+        // Get Maarifa site links
+        $site_links = Site_Link_System::get_list_of_sites_by_type( array( 'maarifa_link' ) );
+        if ( empty( $site_links ) ) {
+            return;
+        }
+
+        $data = array(
+            'type' => 'comment',
+            'values' => $comment,
+            'existing' => $post
+        );
+
+        // Send the data to each Maarifa site link (there should only be one, but just in case...)
+        foreach ($site_links as $site_link ) {
+            dt_write_log( json_encode( $site_link ) );
+            $site = Site_Link_System::get_site_connection_vars( $site_link['id'] );
+            dt_write_log( json_encode( $site ) );
+
+            $this->post_to_maarifa( $site['url'], $site['transfer_token'], $maarifa_contact_id, $data );
+        }
     }
 
     /**
