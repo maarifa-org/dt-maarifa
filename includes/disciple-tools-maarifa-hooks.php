@@ -12,7 +12,7 @@ class Disciple_Tools_Maarifa_Hooks
      *
      * @var    object
      * @access private
-     * @since  0.5.0
+     * @since 0.5.0
      */
     private static $_instance = null;
 
@@ -20,7 +20,7 @@ class Disciple_Tools_Maarifa_Hooks
      * Main Disciple_Tools_Maarifa_Hooks Instance
      * Ensures only one instance of Disciple_Tools_Maarifa_Hooks is loaded or can be loaded.
      *
-     * @since  0.5.0
+     * @since 0.5.0
      * @static
      * @return Disciple_Tools_Maarifa_Hooks instance
      */
@@ -155,26 +155,17 @@ class Disciple_Tools_Maarifa_Hooks
      * @param $post_id
      * @param $created_comment_id
      * @param $type - Comment type (e.g. "comment")
+     * @since 0.5.0
      */
     public function comment_created( $post_type, $post_id, $created_comment_id, $type ) {
-
-        dt_write_log( 'hook:comment_created' );
-        dt_write_log( json_encode( array(
-            'post_type' => $post_type,
-            'post_id' => $post_id,
-            'created_comment_id' => $created_comment_id,
-            'type' => $type
-        )));
 
         // Only send back contacts post types and comments
         if ( $post_type !== 'contacts' || $type !== 'comment') {
             return;
         }
 
-        //todo: get comment and post
         // Get the post
         $post = DT_Posts::get_post( $post_type, $post_id );
-//        dt_write_log(json_encode($post));
 
         // Check if this is a Maarifa-sourced contact
         $maarifa_contact_id = null;
@@ -182,7 +173,6 @@ class Disciple_Tools_Maarifa_Hooks
             $maarifa_data = maybe_unserialize( $post["maarifa_data"] );
             if ( isset( $maarifa_data["id"] ) ) {
                 $maarifa_contact_id = $maarifa_data["id"];
-//                dt_write_log( 'maarifa id:' . $maarifa_contact_id );
             }
         }
         // If not Maarifa-sourced, don't proceed
@@ -191,6 +181,10 @@ class Disciple_Tools_Maarifa_Hooks
         }
 
         // Get the comment itself
+        // Since we have to get a list of comments instead of getting it by id,
+        // we need to search the resulting array for the comment id.
+        // Luckily, that method returns them in reverse chronological order,
+        // so this new comment should be the first in the list (or one of the first).
         $comments = DT_Posts::get_post_comments( $post_type, $post_id );
         $comment = null;
         if ( !empty( $comments ) && !empty( $comments['comments'] )) {
@@ -211,13 +205,12 @@ class Disciple_Tools_Maarifa_Hooks
             return;
         }
 
+        // Send the data to each Maarifa site link (there should only be one, but just in case...)
         $data = array(
             'type' => 'comment',
             'values' => $comment,
             'existing' => $post
         );
-
-        // Send the data to each Maarifa site link (there should only be one, but just in case...)
         foreach ($site_links as $site_link ) {
             dt_write_log( json_encode( $site_link ) );
             $site = Site_Link_System::get_site_connection_vars( $site_link['id'] );
@@ -233,7 +226,7 @@ class Disciple_Tools_Maarifa_Hooks
      * @param string $transfer_token
      * @param int $contact_id
      * @param object $data
-     * @since 0.5
+     * @since 0.5.0
      */
     private function post_to_maarifa( $site_url, $transfer_token, $contact_id, $data ) {
 
