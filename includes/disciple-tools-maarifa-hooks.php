@@ -41,6 +41,7 @@ class Disciple_Tools_Maarifa_Hooks
         add_action( 'dt_post_created', array( $this, 'post_created' ), 10, 3 );
         add_action( 'dt_post_updated', array( $this, 'post_updated' ), 10, 4 );
         add_action( 'dt_comment_created', array( $this, 'comment_created' ), 10, 4 );
+        add_action( 'dt_maarifa_upgrade', array( $this, 'plugin_updated' ), 10, 1 );
     } // End __construct()
 
     /**
@@ -220,6 +221,48 @@ class Disciple_Tools_Maarifa_Hooks
         }
     }
 
+    public function plugin_updated( $version ) {
+        // Since this isn't a hook from DT, we need to load Site_Link_System manually
+        require_once( get_template_directory() . '/dt-core/admin/site-link-post-type.php' );
+
+        $site_links = Site_Link_System::get_list_of_sites_by_type( array( 'maarifa_link' ) );
+        if ( empty( $site_links ) ) {
+            return;
+        }
+
+        // Send the data to each Maarifa site link (there should only be one, but just in case...)
+        foreach ($site_links as $site_link ) {
+            $site = Site_Link_System::get_site_connection_vars( $site_link['id'] );
+
+            // copied from protected Site_Link_System::get_current_site_base_url
+            $url = str_replace( 'http://', '', home_url() );
+            $url = str_replace( 'https://', '', $url );
+            $url = trim( $url );
+
+            $data = array(
+                'site' => $url,
+                'version' => $version
+            );
+            dt_write_log( json_encode( $data ) );
+
+            $is_local = strrpos( $site['url'], 'local' ) > -1;
+            $url = $is_local ? 'http://' : 'https://';
+            $url .= str_replace( '.lan', '.org', $site['url'] );
+            $url .= "/response/api/version";
+            $args = array(
+                'method' => 'POST',
+                'headers' => array(
+                    'Content-Type' => 'application/json'
+                ),
+                'body' => json_encode( $data )
+            );
+            dt_write_log( $url );
+            $result = wp_remote_post( $url, $args );
+            if ( is_wp_error( $result ) ){
+                dt_write_log( 'Error sending version to Maarifa: ' . serialize( $result ) );
+            }
+        }
+    }
     /**
      * Send all data to the Maarifa RS endpoint
      * @param string $site_url
