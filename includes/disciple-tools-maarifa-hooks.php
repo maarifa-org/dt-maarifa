@@ -167,6 +167,10 @@ class Disciple_Tools_Maarifa_Hooks
 
         // Get the post
         $post = DT_Posts::get_post( $post_type, $post_id );
+        // If an error occurs (including missing permissions), don't proceed
+        if ( is_wp_error( $post ) ) {
+            return;
+        }
 
         // Check if this is a Maarifa-sourced contact
         $maarifa_contact_id = null;
