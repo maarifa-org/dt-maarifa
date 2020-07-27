@@ -42,6 +42,8 @@ class Disciple_Tools_Maarifa_Hooks
         add_action( 'dt_post_updated', array( $this, 'post_updated' ), 10, 4 );
         add_action( 'dt_comment_created', array( $this, 'comment_created' ), 10, 4 );
         add_action( 'dt_maarifa_upgrade', array( $this, 'plugin_updated' ), 10, 1 );
+
+        add_filter( 'dt_assignable_users_compact', array( $this, 'assignable_users_compact' ), 10, 3 );
     } // End __construct()
 
     /**
@@ -296,6 +298,16 @@ class Disciple_Tools_Maarifa_Hooks
         if ( is_wp_error( $result ) ){
             dt_write_log( 'Error sending to Maarifa: ' . serialize( $result ) );
         }
+    }
+
+    public function assignable_users_compact( $list, $search_string, $get_all ) {
+        if ( empty( $search_string ) || strpos( "maarifa", strtolower( $search_string ) ) > -1 ) {
+            array_push($list, array(
+                "name" => "Maarifa",
+                "ID" => "maarifa",
+            ));
+        }
+        return $list;
     }
 }
 
