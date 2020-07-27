@@ -172,6 +172,30 @@ class DT_Maarifa_Tab_General
     }
     public function right_column() {
         ?>
+        <!-- Box -->
+        <table class="widefat striped">
+          <thead>
+          <tr><th>Information</th>
+          </tr></thead>
+          <tbody>
+          <tr>
+            <td>
+              <form method="POST" action="">
+                <?php wp_nonce_field( 'security_headers', 'security_headers_nonce' ); ?>
+                <input type="hidden" name="site_link_check" value="1"/>
+                <h3>Get Server Info</h3>
+                <p>Get server IP and location details that may be required for IP whitelisting.</p>
+                <button type="submit" class="button right">Get Server Info</button>
+                <div style="clear:both;"></div>
+                <?php $this->get_server_details() ?>
+                <?php $this->site_link_check() ?>
+              </form>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+        <br>
+        <!-- End Box -->
         <?php
     }
 
@@ -180,6 +204,76 @@ class DT_Maarifa_Tab_General
             if ( isset( $_POST['security_headers_nonce'] ) && wp_verify_nonce( sanitize_key( $_POST['security_headers_nonce'] ), 'security_headers' ) ) {
                 if ( isset( $_POST['share_user_id'] ) ) {
                     update_option( "dt_maarifa_share_user_id", sanitize_text_field( wp_unslash( $_POST['share_user_id'] ) ) );
+                }
+            }
+        }
+    }
+
+    public function get_server_details() {
+        if ( !empty( $_POST ) ){
+            if ( isset( $_POST['security_headers_nonce'] ) && wp_verify_nonce( sanitize_key( $_POST['security_headers_nonce'] ), 'security_headers' ) ) {
+                if ( isset( $_POST['site_link_check'] ) ) {
+
+                    $url = 'https://iraq.journey.tools/wp-json/dt-public/v1/sites/site_link_check';
+                    $args = array(
+                    'method' => 'POST',
+                    'body' => array(
+                    //          'transfer_token' => $site['transfer_token'],
+                    )
+                    );
+
+                    $result = wp_remote_post( $url, $args );
+                    if ( is_wp_error( $result ) ){
+                        print_r( $result );
+        //              echo "<pre>$result</pre>";
+        //              return $result;
+                    }
+                    $result_body = json_decode( $result['body'] );
+                    if ($result_body) {
+                        echo "<div style='overflow-x:scroll;max-width:258px;'>";
+                        echo "<pre><code style='display:block;'>";
+                        echo json_encode( $result_body, JSON_PRETTY_PRINT );
+                        echo "</code></pre>";
+                        echo "</div>";
+                    } else {
+                        echo "<p style='color:red'>An error occurred and the server info cannot be retrieved right now.</p>";
+                        echo "<div style='display:none;'><pre><code>";
+                        echo esc_html( $result['body'] );
+                        echo "</code></pre></div>";
+                    }
+                }
+            }
+        }
+    }
+    public function site_link_check() {
+        if ( !empty( $_POST ) ){
+            if ( isset( $_POST['security_headers_nonce'] ) && wp_verify_nonce( sanitize_key( $_POST['security_headers_nonce'] ), 'security_headers' ) ) {
+                if ( isset( $_POST['site_link_check'] ) ) {
+
+                    $url = 'http://ifconfig.co/json';
+                    $args = array(
+                    'method' => 'GET',
+                    );
+
+                    $result = wp_remote_post( $url, $args );
+                    if ( is_wp_error( $result ) ){
+                        print_r( $result );
+        //              echo "<pre>$result</pre>";
+        //              return $result;
+                    }
+                    $result_body = json_decode( $result['body'] );
+                    if ($result_body) {
+                        echo "<div style='overflow-x:scroll;max-width:258px;'>";
+                        echo "<pre><code style='display:block;'>";
+                        echo json_encode( $result_body, JSON_PRETTY_PRINT );
+                        echo "</code></pre>";
+                        echo "</div>";
+                    } else {
+                        echo "<p style='color:red'>An error occurred and the server info cannot be retrieved right now.</p>";
+                        echo "<div style='display:none;'><pre><code>";
+                        echo esc_html( $result['body'] );
+                        echo "</code></pre></div>";
+                    }
                 }
             }
         }
