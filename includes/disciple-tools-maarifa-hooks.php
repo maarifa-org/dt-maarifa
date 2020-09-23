@@ -42,6 +42,8 @@ class Disciple_Tools_Maarifa_Hooks
         add_action( 'dt_post_updated', array( $this, 'post_updated' ), 10, 4 );
         add_action( 'dt_comment_created', array( $this, 'comment_created' ), 10, 4 );
         add_action( 'dt_maarifa_upgrade', array( $this, 'plugin_updated' ), 10, 1 );
+
+        add_filter( 'dt_data_reporting_configurations', array( $this, 'data_reporting_configurations' ), 10, 1 );
     } // End __construct()
 
     /**
@@ -297,6 +299,11 @@ class Disciple_Tools_Maarifa_Hooks
             dt_write_log( 'Error sending to Maarifa: ' . serialize( $result ) );
         }
     }
+
+    public function data_reporting_configurations( $configurations ) {
+        return $configurations;
+    }
+
 }
 
 Disciple_Tools_Maarifa_Hooks::instance();
