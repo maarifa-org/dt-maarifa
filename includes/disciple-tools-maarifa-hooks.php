@@ -362,6 +362,7 @@ class Disciple_Tools_Maarifa_Hooks
         $url .= str_replace( '.lan', '.org', $site_url );
         $url .= "/response/api/reporting-config";
         $args = array(
+            'timeout' => 30, // 30s timeout
             'method' => 'GET',
             'headers' => array(
                 'Authorization' => 'Bearer ' . $transfer_token,
@@ -374,10 +375,11 @@ class Disciple_Tools_Maarifa_Hooks
         // but then move on and not throw it to the user
         if ( is_wp_error( $result ) ){
             dt_write_log( 'Error sending to Maarifa: ' . serialize( $result ) );
-        }
-        $result_body = json_decode( $result['body'], true );
-        if ( $result_body['success'] && isset( $result_body['data'] ) ) {
-            return [ $result_body['data']['url'], $result_body['data']['key'] ];
+        } else {
+            $result_body = json_decode( $result['body'], true );
+            if ($result_body['success'] && isset( $result_body['data'] )) {
+                return [ $result_body['data']['url'], $result_body['data']['key'] ];
+            }
         }
         return;
     }
