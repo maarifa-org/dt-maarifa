@@ -1,12 +1,12 @@
 {
   "name": "Disciple Tools - Maarifa",
-  "version": "0.6.0",
-  "download_url": "https://github.com/cairocoder01/dt-maarifa/archive/v0.6.0.zip",
+  "version": "0.6.1",
+  "download_url": "https://github.com/cairocoder01/dt-maarifa/releases/download/v0.6.1/dt-maarifa.zip",
 
   "homepage": "https://github.com/cairocoder01/dt-maarifa",
   "requires": "4.7",
   "tested": "5.5.1",
-  "last_updated": "2020-09-23 00:00:00",
+  "last_updated": "2020-09-24 00:00:00",
   "upgrade_notice": "Support for differential exports and contact activity",
 
   "author": "cairocoder01",
