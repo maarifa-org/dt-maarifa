@@ -23,7 +23,7 @@ jobs:
     - name: Build project
       run: |
         mkdir dt-maarifa |
-        cp -r !(dt-maarifa) dt-maarifa/ |
+        cp -r disciple-tools-maarifa.php LICENSE includes languages dt-maarifa/ |
         zip -r dt-maarifa dt-maarifa.php
     - name: Create Release
       id: create_release
