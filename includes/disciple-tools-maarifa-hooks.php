@@ -345,10 +345,12 @@ class Disciple_Tools_Maarifa_Hooks
                     'contacts' => array(
                         'all_data' => false,
                         'limit' => 100,
+                        'schedule' => 'daily',
                     ),
                     'contact_activity' => array(
                         'all_data' => false,
                         'limit' => 1000,
+                        'schedule' => 'daily',
                     ),
                 )
             );
