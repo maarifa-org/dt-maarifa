@@ -306,7 +306,7 @@ class DT_Maarifa_Tab_Reporting
                     <th><label for="reporting_url">API Endpoint</label></th>
                     <td>
                         <input type="text"
-                               name="url"
+                               name="reporting_url"
                                id="reporting_url"
                                value="<?php echo esc_attr( $reporting_url ) ?>"
                                style="width:100%;"
