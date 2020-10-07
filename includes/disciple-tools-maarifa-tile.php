@@ -41,6 +41,7 @@ class Disciple_Tools_Maarifa_Tile
         add_filter( "dt_details_additional_section_ids", array( $this, "dt_maarifa_declare_section_id" ), 999, 2 );
         add_action( "dt_details_additional_section", array( $this, "dt_maarifa_add_section" ) );
         add_filter( "dt_comments_additional_sections", array( $this, "add_comment_section" ), 10, 2 );
+        add_filter( "dt_data_reporting_field_output", array( $this, "data_reporting_field_output" ), 10, 4 );
     } // End __construct()
 
     public static function dt_contact_fields( array $fields, string $post_type = ""){
@@ -59,7 +60,8 @@ class Disciple_Tools_Maarifa_Tile
                 $fields["maarifa_sync"] = array(
                     "name" => __( "Maarifa Sync", "dt_maarifa" ),
                     "type" => "bool",
-                    "default" => false
+                    "default" => false,
+                    "hidden" => true
                 );
             }
         }
@@ -164,6 +166,20 @@ class Disciple_Tools_Maarifa_Tile
     public function add_duplicate_check_field( $fields ) {
         $fields[] = "maarifa_data";
         return $fields;
+    }
+
+    public function data_reporting_field_output( $field_value, $type, $field_key, $flatten ) {
+        if ($field_key == 'maarifa_data' ) {
+            $data = $field_value;
+            if ( is_string( $field_value ) ) {
+                $data = json_decode( $field_value, true );
+            }
+            if ( is_array( $data ) && isset( $data['id'] ) ) {
+                return strval( $data['id'] );
+            }
+            return "";
+        }
+        return $field_value;
     }
 }
 

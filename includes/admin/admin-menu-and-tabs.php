@@ -68,17 +68,26 @@ class DT_Maarifa_Menu {
             $tab = 'general';
         }
         $link = 'admin.php?page='.$this->token.'&tab=';
+        $reporting_plugin_active = is_plugin_active( 'disciple-tools-data-reporting/disciple-tools-data-reporting.php' );
         ?>
         <div class="wrap">
             <h2><?php esc_attr_e( 'Maarifa Plugin', 'dt_maarifa' ) ?></h2>
             <h2 class="nav-tab-wrapper">
                 <a href="<?php echo esc_attr( $link ) . 'general' ?>" class="nav-tab <?php ( $tab == 'general' || ! isset( $tab ) ) ? esc_attr_e( 'nav-tab-active', 'dt_maarifa' ) : print ''; ?>"><?php esc_attr_e( 'General', 'dt_maarifa' ) ?></a>
+
+                <?php if ( $reporting_plugin_active ): ?>
+                <a href="<?php echo esc_attr( $link ) . 'reporting' ?>" class="nav-tab <?php ( $tab == 'reporting' || ! isset( $tab ) ) ? esc_attr_e( 'nav-tab-active', 'dt_maarifa' ) : print ''; ?>"><?php esc_attr_e( 'Reporting', 'dt_maarifa' ) ?></a>
+                <?php endif; ?>
             </h2>
 
             <?php
             switch ($tab) {
                 case "general":
                     $object = new DT_Maarifa_Tab_General();
+                    $object->content();
+                    break;
+                case "reporting":
+                    $object = new DT_Maarifa_Tab_Reporting();
                     $object->content();
                     break;
                 default:
@@ -237,6 +246,108 @@ class DT_Maarifa_Tab_General
                         echo esc_html( $result['body'] );
                         echo "</code></pre></div>";
                     }
+                }
+            }
+        }
+    }
+}
+/**
+ * Class DT_Maarifa_Tab_Reporting
+ */
+class DT_Maarifa_Tab_Reporting
+{
+    public function content() {
+
+        $this->save_settings();
+
+        ?>
+
+        <div class="wrap">
+            <div id="poststuff">
+                <div id="post-body" class="metabox-holder columns-1">
+                    <div id="post-body-content">
+                        <!-- Main Column -->
+
+                        <?php $this->main_column() ?>
+
+                        <!-- End Main Column -->
+                    </div><!-- end post-body-content -->
+                </div><!-- post-body meta box container -->
+            </div><!--poststuff end -->
+        </div><!-- wrap end -->
+        <?php
+    }
+    public function main_column() {
+        $reporting_enabled = get_option( "dt_maarifa_reporting_enabled", false );
+        $reporting_url = get_option( "dt_maarifa_reporting_url" );
+        $reporting_key = get_option( "dt_maarifa_reporting_apikey" );
+        ?>
+
+        <form method="POST" action="">
+            <?php wp_nonce_field( 'security_headers', 'security_headers_nonce' ); ?>
+            <table class="widefat striped">
+            <thead>
+                <th colspan="2">Data Reporting Settings</th>
+            </thead>
+            <tbody>
+                <tr>
+                    <th><label for="reporting_enabled">Opt-In</label></th>
+                    <td>
+                        <input type="checkbox"
+                               name="reporting_enabled"
+                               id="reporting_enabled"
+                               value="1"
+                               <?php echo $reporting_enabled ? 'checked' : '' ?>
+                        />
+                        <label for="reporting_enabled">Enable automatic exporting of Maarifa contact data to their reporting data store</label>
+                    </td>
+                </tr>
+                <tr>
+                    <th><label for="reporting_url">API Endpoint</label></th>
+                    <td>
+                        <input type="text"
+                               name="reporting_url"
+                               id="reporting_url"
+                               value="<?php echo esc_attr( $reporting_url ) ?>"
+                               style="width:100%;"
+                               />
+                        <div class="muted">This should be set automatically. If it is blank, please get in touch with your Maarifa technical contact.</div>
+                    </td>
+                </tr>
+                <tr>
+                    <th><label for="reporting_apikey">API Key</label></th>
+                    <td>
+                        <input type="text"
+                               name="apikey"
+                               id="reporting_apikey"
+                               value="<?php echo esc_attr( $reporting_key ) ?>"
+                               style="width:100%;"
+                               />
+                        <div class="muted">This should be set automatically. If it is blank, please get in touch with your Maarifa technical contact.</div>
+                    </td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>
+                        <button type="submit" class="button">Update</button>
+                    </td>
+                </tr>
+            </tbody>
+            </table>
+        </form>
+
+        <?php
+    }
+
+    public function save_settings() {
+        if ( !empty( $_POST ) ){
+            if ( isset( $_POST['security_headers_nonce'] ) && wp_verify_nonce( sanitize_key( $_POST['security_headers_nonce'] ), 'security_headers' ) ) {
+                update_option( "dt_maarifa_reporting_enabled", isset( $_POST['reporting_enabled'] ) && $_POST['reporting_enabled'] == '1' );
+                if ( isset( $_POST['reporting_url'] ) ) {
+                    update_option( "dt_maarifa_reporting_url", sanitize_text_field( wp_unslash( $_POST['reporting_url'] ) ) );
+                }
+                if ( isset( $_POST['apikey'] ) ) {
+                    update_option( "dt_maarifa_reporting_apikey", sanitize_text_field( wp_unslash( $_POST['apikey'] ) ) );
                 }
             }
         }

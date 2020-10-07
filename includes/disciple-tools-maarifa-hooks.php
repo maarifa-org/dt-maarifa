@@ -44,6 +44,8 @@ class Disciple_Tools_Maarifa_Hooks
         add_action( 'dt_maarifa_upgrade', array( $this, 'plugin_updated' ), 10, 1 );
 
         add_filter( 'dt_assignable_users_compact', array( $this, 'assignable_users_compact' ), 10, 3 );
+
+        add_filter( 'dt_data_reporting_configurations', array( $this, 'data_reporting_configurations' ), 10, 1 );
     } // End __construct()
 
     /**
@@ -299,6 +301,93 @@ class Disciple_Tools_Maarifa_Hooks
             dt_write_log( 'Error sending to Maarifa: ' . serialize( $result ) );
         }
     }
+
+    /**
+     * @param $configurations
+     * @return mixed
+     */
+    public function data_reporting_configurations( $configurations ) {
+        $reporting_enabled = get_option( "dt_maarifa_reporting_enabled", false );
+        $reporting_url = get_option( "dt_maarifa_reporting_url" );
+        $reporting_key = get_option( "dt_maarifa_reporting_apikey" );
+
+        // If the url/key is not configured, try to fetch it from the API
+        if ( empty( $reporting_url ) || empty( $reporting_key ) ) {
+            // Get Maarifa site links
+            $site_links = Site_Link_System::get_list_of_sites_by_type( array( 'maarifa_link' ) );
+            if ( !empty( $site_links ) ) {
+
+                // Get the config from each Maarifa site link (there should only be one, but just in case...)
+                foreach ($site_links as $site_link ) {
+                    $site = Site_Link_System::get_site_connection_vars( $site_link['id'] );
+
+                    [ $reporting_url, $reporting_key ] = $this->get_reporting_configuration( $site['url'], $site['transfer_token'] );
+
+                    // If we got values back, save them to wp_options for use next time
+                    if ( !empty( $reporting_url ) ) {
+                        update_option( "dt_maarifa_reporting_url", $reporting_url );
+                    }
+                    if ( !empty( $reporting_key ) ) {
+                        update_option( "dt_maarifa_reporting_apikey", $reporting_key );
+                    }
+                }
+            }
+        }
+
+        if ( !empty( $reporting_url ) && !empty( $reporting_key ) ) {
+            $configurations['maarifa'] = array(
+                'name' => 'Maarifa',
+                'url' => $reporting_url,
+                'token' => $reporting_key,
+                'active' => $reporting_enabled,
+                'contacts_filter' => array(
+                    'sources' => array( 'maarifa' ),
+                ),
+                'data_types' => array(
+                    'contacts' => array(
+                        'all_data' => false,
+                        'limit' => 100,
+                        'schedule' => 'daily',
+                    ),
+                    'contact_activity' => array(
+                        'all_data' => false,
+                        'limit' => 1000,
+                        'schedule' => 'daily',
+                    ),
+                )
+            );
+        }
+        return $configurations;
+    }
+
+    private function get_reporting_configuration( $site_url, $transfer_token ) {
+        $is_local = strrpos( $site_url, 'local' ) > -1;
+        $url = $is_local ? 'http://' : 'https://';
+        $url .= str_replace( '.lan', '.org', $site_url );
+        $url .= "/response/api/reporting-config";
+        $args = array(
+            'timeout' => 30, // 30s timeout
+            'method' => 'GET',
+            'headers' => array(
+                'Authorization' => 'Bearer ' . $transfer_token,
+                'Content-Type' => 'application/json'
+            )
+        );
+        dt_write_log( $url );
+        $result = wp_remote_post( $url, $args );
+        // If there is an error, we'll capture it and log it,
+        // but then move on and not throw it to the user
+        if ( is_wp_error( $result ) ){
+            dt_write_log( 'Error sending to Maarifa: ' . serialize( $result ) );
+        } else {
+            $result_body = json_decode( $result['body'], true );
+            if ($result_body['success'] && isset( $result_body['data'] )) {
+                return [ $result_body['data']['url'], $result_body['data']['key'] ];
+            }
+        }
+        return;
+    }
+
 
     public function assignable_users_compact( $list, $search_string, $get_all ) {
         if ( empty( $search_string ) || strpos( "maarifa", strtolower( $search_string ) ) > -1 ) {
