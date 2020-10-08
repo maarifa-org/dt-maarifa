@@ -160,7 +160,7 @@ class Disciple_Tools_Maarifa_Tile
                     <label for="maarifa-message">
                         <?php esc_html_e( "Message", "dt_maarifa" ); ?>
                     </label>
-                    <textarea class="men tion" dir="auto" id="maarifa-message" name="message"
+                    <textarea dir="auto" id="maarifa-message" name="message"
                               placeholder="<?php echo esc_html_x( "Write your comment or note here", 'input field placeholder', 'disciple_tools' ) ?>"
                     ></textarea>
 
@@ -214,6 +214,7 @@ class Disciple_Tools_Maarifa_Tile
 
                     }
                     $('#maarifa-request-info').on('click', function () {
+                        masonGrid.masonry('layout');
                         $('#maarifa-request-modal').foundation('open');
                     });
                     $('.js-maarifa-send-message').on('submit', function (evt) {
