@@ -218,6 +218,11 @@ class Disciple_Tools_Maarifa_Hooks
             return;
         }
 
+        // If the comment author is "Updated Needed", ignore it because this is an automated comment
+        if ( isset( $comment['comment_author'] ) && $comment['comment_author'] == 'Updated Needed' ) {
+            return;
+        }
+
         // Get Maarifa site links
         $site_links = Site_Link_System::get_list_of_sites_by_type( array( 'maarifa_link' ) );
         if ( empty( $site_links ) ) {
