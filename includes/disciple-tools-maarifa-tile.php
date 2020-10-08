@@ -110,9 +110,7 @@ class Disciple_Tools_Maarifa_Tile
             ?>
 
 
-            <?php
-            if ( isset( $maarifa_data["id"] ) ) {
-                ?>
+            <?php if ( isset( $maarifa_data["id"] ) ): ?>
                 <label class="section-header">
                     <?php esc_html_e( "Maarifa", "dt_maarifa" ) ?>
                 </label>
@@ -121,10 +119,8 @@ class Disciple_Tools_Maarifa_Tile
                     <?php esc_html_e( "ID", "dt_maarifa" ) ?>
                 </div>
                 <p><?php echo esc_html( $maarifa_data["id"] ) ?></p>
-                <?php
-            }
-            if ( isset( $maarifa_data["first_contact_details"] ) ) {
-                ?>
+            <?php endif; ?>
+            <?php if ( isset( $maarifa_data["first_contact_details"] ) ): ?>
                 <div class="section-subheader">
                     <?php esc_html_e( "First Contact from Campaign", "dt_maarifa" ) ?>
                 </div>
@@ -148,8 +144,87 @@ class Disciple_Tools_Maarifa_Tile
                         </span>
                     <?php endif; ?>
                 </p>
-                <?php
-            }
+            <?php endif; ?>
+
+            <div class="maarifa-request-info-container">
+                <button type="button" id="maarifa-request-info" class="button" data-open="maarifa-request-modal">
+                    <?php esc_html_e( "Request Info", "dt_maarifa" ) ?>
+                </button>
+            </div>
+
+            <div class="reveal" id="maarifa-request-modal" data-reveal data-reset-on-close>
+                <h3><?php esc_html_e( 'Request Info', 'dt_maarifa' )?></h3>
+                <p><?php esc_html_e( 'To contact the Maarifa team for any reason, enter your message below and the relevant team members will be notified.', 'dt_maarifa' ) ?></p>
+
+                <form class="js-maarifa-send-message">
+                    <label for="maarifa-message">
+                        <?php esc_html_e( "Message", "dt_maarifa" ); ?>
+                    </label>
+                    <textarea class="men tion" dir="auto" id="maarifa-message" name="message"
+                              placeholder="<?php echo esc_html_x( "Write your comment or note here", 'input field placeholder', 'disciple_tools' ) ?>"
+                    ></textarea>
+
+                    <div>
+                        <button class="button loader js-send-message-button" id="maarifa-send-message-button" type="submit"><?php echo esc_html__( "Send Message", 'dt_maarifa' ); ?></button>
+                        <button class="button button-cancel clear" data-close aria-label="Close reveal" type="button">
+                            <?php echo esc_html__( 'Cancel', 'disciple_tools' )?>
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <script>
+                jQuery(document).ready(function ($) {
+                    function maarifa_send_message() {
+                        let postId = window.detailsSettings.post_id;
+                        let postType = window.detailsSettings.post_type;
+                        let rest_api = window.API;
+
+                        let commentInput = jQuery("#maarifa-message")
+                        let commentButton = jQuery("#maarifa-send-message-button")
+
+                        // Get comment text
+                        let message = commentInput.val();
+
+                        if (message) {
+                            // Prepend @maarifa tag
+                            message = "@[Maarifa](maarifa) " + message;
+                            // Loading indicators
+                            commentButton.toggleClass('loading');
+                            commentInput.attr("disabled", true);
+                            commentButton.attr("disabled", true);
+                            // Save comment
+                            rest_api.post_comment(postType, postId, message, 'comment' ).then(data => {
+                                let updated_comment = data.comment || data;
+                                // Reset input
+                                commentInput.val("").trigger("change");
+                                commentButton.toggleClass('loading');
+                                updated_comment.date = moment(updated_comment.comment_date_gmt + "Z");
+
+                                commentInput.attr("disabled", false)
+                                commentButton.attr("disabled", false)
+                                // Close modal
+                                $('#maarifa-request-modal').foundation('close');
+                            }).catch(err => {
+                                console.log("error")
+                                console.log(err)
+                                jQuery("#errors").append(err.responseText)
+                            })
+                        }
+
+                    }
+                    $('#maarifa-request-info').on('click', function () {
+                        $('#maarifa-request-modal').foundation('open');
+                    });
+                    $('.js-maarifa-send-message').on('submit', function (evt) {
+                        if (evt) {
+                            evt.preventDefault();
+                        }
+                        maarifa_send_message();
+                    });
+                });
+            </script>
+            <?php
         }
     }
 
