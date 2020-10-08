@@ -19,7 +19,7 @@
 if ( ! defined( 'ABSPATH' ) ) {
     exit; // Exit if accessed directly
 }
-$dt_maarifa_required_dt_theme_version = '0.23.0';
+$dt_maarifa_required_dt_theme_version = '0.32.0';
 
 /**
  * Gets the instance of the `DT_Maarifa` class.
