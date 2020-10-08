@@ -16,6 +16,8 @@ class Disciple_Tools_Maarifa_Hooks
      */
     private static $_instance = null;
 
+    private $version = null;
+
     /**
      * Main Disciple_Tools_Maarifa_Hooks Instance
      * Ensures only one instance of Disciple_Tools_Maarifa_Hooks is loaded or can be loaded.
@@ -38,6 +40,13 @@ class Disciple_Tools_Maarifa_Hooks
      * @since  0.1.0
      */
     public function __construct() {
+        // Get the plugin version to use in API calls
+        if ( !function_exists( 'get_plugin_data' ) ) {
+            require_once( ABSPATH . 'wp-admin/includes/plugin.php' );
+        }
+        $plugin_data = get_plugin_data( dirname( __FILE__, 2 ) . '/disciple-tools-maarifa.php' );
+        $this->version = $plugin_data['Version'];
+
         add_action( 'dt_post_created', array( $this, 'post_created' ), 10, 3 );
         add_action( 'dt_post_updated', array( $this, 'post_updated' ), 10, 4 );
         add_action( 'dt_comment_created', array( $this, 'comment_created' ), 10, 4 );
@@ -84,7 +93,7 @@ class Disciple_Tools_Maarifa_Hooks
      * Hook for when a DT post is updated.
      * Capture dt_post_updated actions to forward back to Maarifa.
      * Ignores: non-contacts, requires_update, contacts without maarifa_data,
-     * updates from Maarifa, and reminders (requires_update)
+     *   updates from Maarifa, and reminders (requires_update)
      *
      * @param $post_type
      * @param $post_id
@@ -95,7 +104,7 @@ class Disciple_Tools_Maarifa_Hooks
      */
     public function post_updated( $post_type, $post_id, $initial_fields, $existing_post ) {
 
-        dt_write_log( 'hook:post_updated' );
+        // dt_write_log( 'hook:post_updated' );
 
         // Only send back contacts post types
         if ( $post_type !== 'contacts' ) {
@@ -125,8 +134,8 @@ class Disciple_Tools_Maarifa_Hooks
         if ( empty( $maarifa_contact_id ) ) {
             return;
         }
-        dt_write_log( serialize( $existing_post ) );
-        dt_write_log( serialize( $initial_fields ) );
+        // dt_write_log( serialize( $existing_post ) );
+        // dt_write_log( serialize( $initial_fields ) );
 
         // Get Maarifa site links
         $site_links = Site_Link_System::get_list_of_sites_by_type( array( 'maarifa_link' ) );
@@ -137,7 +146,8 @@ class Disciple_Tools_Maarifa_Hooks
         $data = array(
             'type' => 'update',
             'values' => $initial_fields,
-            'existing' => $existing_post
+            'existing' => $existing_post,
+            'plugin_version' => $this->version
         );
 
         // Send the data to each Maarifa site link (there should only be one, but just in case...)
@@ -218,7 +228,8 @@ class Disciple_Tools_Maarifa_Hooks
         $data = array(
             'type' => 'comment',
             'values' => $comment,
-            'existing' => $post
+            'existing' => $post,
+            'plugin_version' => $this->version
         );
         foreach ($site_links as $site_link ) {
             dt_write_log( json_encode( $site_link ) );
