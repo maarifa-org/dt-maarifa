@@ -3,7 +3,7 @@
  * Plugin Name: Disciple Tools - Maarifa
  * Plugin URI: https://github.com/cairocoder01/dt-maarifa
  * Description: Disciple Tools - Maarifa integrates the two platforms by providing access for Maarifa to create and read contacts in Disciple Tools.
- * Version:  0.7.0
+ * Version:  0.7.1
  * Author URI: https://github.com/cairocoder01
  * GitHub Plugin URI: https://github.com/cairocoder01/dt-maarifa
  * Requires at least: 4.7.0
@@ -141,7 +141,7 @@ class DT_Maarifa {
 
         // Admin and settings variables
         $this->token             = 'dt_maarifa';
-        $this->version             = '0.7.0';
+        $this->version             = '0.7.1';
     }
 
     /**
