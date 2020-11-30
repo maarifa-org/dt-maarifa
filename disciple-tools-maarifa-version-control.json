@@ -1,13 +1,13 @@
 {
   "name": "Disciple Tools - Maarifa",
-  "version": "0.7.0",
-  "download_url": "https://github.com/cairocoder01/dt-maarifa/releases/download/v0.7.0/dt-maarifa.zip",
+  "version": "0.7.1",
+  "download_url": "https://github.com/cairocoder01/dt-maarifa/releases/download/v0.7.1/dt-maarifa.zip",
 
   "homepage": "https://github.com/cairocoder01/dt-maarifa",
   "requires": "4.7",
   "tested": "5.5.3",
-  "last_updated": "2020-11-11 14:00:00",
-  "upgrade_notice": "Enhanced communication with Maarifa team with user tagging in comments",
+  "last_updated": "2020-11-30 18:00:00",
+  "upgrade_notice": "Enhanced display of campaign details and IP location data (if available)",
 
   "author": "cairocoder01",
   "author_homepage": "https://github.com/cairocoder01",
