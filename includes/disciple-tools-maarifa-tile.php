@@ -108,14 +108,31 @@ class Disciple_Tools_Maarifa_Tile
                 $maarifa_data = maybe_unserialize( $contact["maarifa_data"] );
             }
             ?>
-
+            <style type="text/css">
+                #contact_maarifa_data-tile { font-size: 14px; }
+                #contact_maarifa_data-tile .section-subheader {
+                    border-bottom: solid 1px #d3d3d3;
+                }
+                .ip-location-details dl {
+                    display: flex;
+                    flex-direction: row;
+                    flex-wrap: wrap;
+                }
+                .ip-location-details dt:nth-of-type(even),
+                .ip-location-details dd:nth-of-type(even) {
+                    background-color: #f5f5f5;
+                }
+                .ip-location-details dt, .ip-location-details dd { margin-bottom: 0.3rem; }
+                .ip-location-details dt { width: 30%; }
+                .ip-location-details dd { width: 70%; }
+            </style>
 
             <?php if ( isset( $maarifa_data["id"] ) ): ?>
                 <label class="section-header">
                     <?php esc_html_e( "Maarifa", "dt_maarifa" ) ?>
                 </label>
 
-                <div class="section-subheader">
+                <div class="section-subheader section-subheader-maarifa">
                     <?php esc_html_e( "ID", "dt_maarifa" ) ?>
                 </div>
                 <p><?php echo esc_html( $maarifa_data["id"] ) ?></p>
@@ -128,7 +145,8 @@ class Disciple_Tools_Maarifa_Tile
                     <?php echo esc_html( $maarifa_data["first_contact"] ) ?>
                 </p>
             <?php endif; ?>
-            <?php if ( isset( $maarifa_data["first_contact_details"] ) ): ?>
+
+            <?php if ( isset( $maarifa_data["first_contact_details"] ) && isset( $maarifa_data["first_contact_details"]["title"] ) ): ?>
                 <div class="section-subheader">
                     <?php esc_html_e( "Campaign", "dt_maarifa" ) ?>
                 </div>
@@ -158,11 +176,37 @@ class Disciple_Tools_Maarifa_Tile
                 </div>
             <?php endif; ?>
 
+            <?php if ( isset( $maarifa_data["location_details"] ) && !empty( $maarifa_data["location_details"] ) ): ?>
+                <div class="section-subheader">
+                    <?php esc_html_e( "IP Location Info", "dt_maarifa" ) ?>
+                </div>
+                <div class="ip-location-details" style="margin-bottom: 1rem;">
+                    <dl>
+                        <?php if ( isset( $maarifa_data["location_details"]["country"] ) ): ?>
+                        <dt>Country</dt>
+                        <dd><?php echo esc_html( $maarifa_data["location_details"]["country"] ) ?></dd>
+                        <?php endif; ?>
+
+                        <?php if ( isset( $maarifa_data["location_details"]["city"] ) ): ?>
+                        <dt>City</dt>
+                        <dd><?php echo esc_html( $maarifa_data["location_details"]["city"] ) ?></dd>
+                        <?php endif; ?>
+
+                        <?php if ( isset( $maarifa_data["location_details"]["query"] ) ): ?>
+                        <dt>IP</dt>
+                        <dd><a href="https://ip-api.com/<?php echo esc_attr( $maarifa_data["location_details"]["query"] ) ?>" target="_blank"><?php echo esc_html( $maarifa_data["location_details"]["query"] ) ?></a></dd>
+                        <?php endif; ?>
+                    </dl>
+                </div>
+            <?php endif; ?>
+
             <div class="maarifa-request-info-container">
                 <button type="button" id="maarifa-request-info" class="button" data-open="maarifa-request-modal">
                     <?php esc_html_e( "Request Info", "dt_maarifa" ) ?>
                 </button>
             </div>
+
+            <pre style="display: none;"><code style="display: block;"><?php echo json_encode( $maarifa_data, JSON_PRETTY_PRINT ) ?></code></pre>
 
             <div class="reveal" id="maarifa-request-modal" data-reveal data-reset-on-close>
                 <h3><?php esc_html_e( 'Request Info', 'dt_maarifa' )?></h3>
