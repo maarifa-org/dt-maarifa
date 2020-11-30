@@ -173,6 +173,12 @@ class Disciple_Tools_Maarifa_Tile
                             <?php echo esc_html( $maarifa_data["first_contact_details"]["description"] ) ?>
                         </div>
                     <?php endif; ?>
+
+                    <?php if ( isset( $maarifa_data["first_contact_details"]["url"] ) ): ?>
+                        <a href="<?php echo esc_attr( $maarifa_data["first_contact_details"]["url"] ) ?>" target="_blank">
+                            <?php echo esc_html( "View Campaign", "dt_maarifa" ) ?>
+                        </a>
+                    <?php endif; ?>
                 </div>
             <?php endif; ?>
 
