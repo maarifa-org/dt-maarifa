@@ -120,30 +120,42 @@ class Disciple_Tools_Maarifa_Tile
                 </div>
                 <p><?php echo esc_html( $maarifa_data["id"] ) ?></p>
             <?php endif; ?>
-            <?php if ( isset( $maarifa_data["first_contact_details"] ) ): ?>
+            <?php if ( isset( $maarifa_data["first_contact"] ) ): ?>
                 <div class="section-subheader">
-                    <?php esc_html_e( "First Contact from Campaign", "dt_maarifa" ) ?>
+                    <?php esc_html_e( "First Contact", "dt_maarifa" ) ?>
                 </div>
                 <p>
-                    <?php echo esc_html( $maarifa_data["first_contact_details"]["title"] ) ?>
+                    <?php echo esc_html( $maarifa_data["first_contact"] ) ?>
+                </p>
+            <?php endif; ?>
+            <?php if ( isset( $maarifa_data["first_contact_details"] ) ): ?>
+                <div class="section-subheader">
+                    <?php esc_html_e( "Campaign", "dt_maarifa" ) ?>
+                </div>
+                <div class="campaign-details" style="margin-bottom: 1rem;">
+                    <div class="campaign-title" style="font-weight: 500"><?php echo esc_html( $maarifa_data["first_contact_details"]["title"] ) ?></div>
 
-                    <?php if ( isset( $maarifa_data["first_contact_details"]["description"] ) ): ?>
-                        <br>
-                        <span class="campaign-description" style="font-style:italic">
-                            <?php echo esc_html( $maarifa_data["first_contact_details"]["description"] ) ?>
-                        </span>
+                    <?php if ( isset( $maarifa_data["first_contact_details"]["subtitle"] ) && $maarifa_data["first_contact_details"]["title"] !== $maarifa_data["first_contact_details"]["subtitle"] ): ?>
+                        <div class="campaign-subtitle"><?php echo esc_html( $maarifa_data["first_contact_details"]["subtitle"] ) ?></div>
                     <?php endif; ?>
 
                     <?php if ( isset( $maarifa_data["first_contact_details"]["dates"] ) ): ?>
-                        <br>
-                        <span class="campaign-dates-label" style="font-weight: 500">
-                            <?php echo esc_html( "Dates", "dt_maarifa" ) . ": " ?>
-                        </span>
-                        <span class="campaign-dates">
-                            <?php echo esc_html( $maarifa_data["first_contact_details"]["dates"] ) ?>
-                        </span>
+                        <div>
+                            <span class="campaign-dates-label" style="font-weight: 500">
+                                <?php echo esc_html( "Dates", "dt_maarifa" ) . ": " ?>
+                            </span>
+                            <span class="campaign-dates">
+                                <?php echo esc_html( $maarifa_data["first_contact_details"]["dates"] ) ?>
+                            </span>
+                        </div>
                     <?php endif; ?>
-                </p>
+
+                    <?php if ( isset( $maarifa_data["first_contact_details"]["description"] ) ): ?>
+                        <div class="campaign-description" style="font-style:italic">
+                            <?php echo esc_html( $maarifa_data["first_contact_details"]["description"] ) ?>
+                        </div>
+                    <?php endif; ?>
+                </div>
             <?php endif; ?>
 
             <div class="maarifa-request-info-container">
