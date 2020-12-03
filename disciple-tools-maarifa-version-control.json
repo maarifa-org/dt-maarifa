@@ -1,13 +1,13 @@
 {
   "name": "Disciple Tools - Maarifa",
-  "version": "0.7.2",
+  "version": "0.7.3",
   "download_url": "https://github.com/cairocoder01/dt-maarifa/releases/latest/download/dt-maarifa.zip",
 
   "homepage": "https://github.com/cairocoder01/dt-maarifa",
   "requires": "4.7",
   "tested": "5.5.3",
-  "last_updated": "2020-12-03 18:30:00",
-  "upgrade_notice": "Bug fix to support upcoming D.T v1.0 changes",
+  "last_updated": "2020-12-03 18:48:00",
+  "upgrade_notice": "Backwards-compatible support for upcoming D.T v1.0 changes",
 
   "author": "cairocoder01",
   "author_homepage": "https://github.com/cairocoder01",
