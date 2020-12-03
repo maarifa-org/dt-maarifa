@@ -4,6 +4,12 @@ if ( !defined( 'ABSPATH' ) ) {
 } // Exit if accessed directly
 class Disciple_Tools_Maarifa_Tile
 {
+    private static function is_dt_1_0() {
+        $wp_theme = wp_get_theme();
+        $version = $wp_theme->version;
+        return version_compare( $version, '1.0.0', ">=" );
+    }
+
     /**
      * Disciple_Tools_Maarifa_Tile The single instance of Disciple_Tools_Maarifa_Tile.
      *
@@ -83,12 +89,17 @@ class Disciple_Tools_Maarifa_Tile
     public static function dt_maarifa_declare_section_id( $sections, $post_type = "" ) {
         //check if we are on a contact
         if ( $post_type === "contacts" ) {
-            $contact_fields = DT_Posts::get_post_field_settings( "contacts" );
+            $contact_fields = self::is_dt_1_0()
+                ? DT_Posts::get_post_field_settings( "contacts" )
+                : Disciple_Tools_Contact_Post_Type::instance()->get_custom_fields_settings();
+
             //check if the language field is set
             //check if content is there before adding empty tile
             $contact_id    = get_the_ID();
             if ( $contact_id ){
-                $contact       = Disciple_Tools_Contacts::get_contact( $contact_id, true, true );
+                $contact = self::is_dt_1_0()
+                    ? DT_Posts::get_post( "contacts", $contact_id, true, true )
+                    : Disciple_Tools_Contacts::get_contact( $contact_id, true, true );
                 if ( isset( $contact["maarifa_data"] ) ) {
                     if ( isset( $contact_fields["maarifa_data"] ) ) {
                         $sections[] = "contact_maarifa_data";
@@ -101,8 +112,10 @@ class Disciple_Tools_Maarifa_Tile
 
     public static function dt_maarifa_add_section( $section ) {
         if ( $section == "contact_maarifa_data" ) {
-            $contact_id    = get_the_ID();
-            $contact       = Disciple_Tools_Contacts::get_contact( $contact_id, true, true );
+            $contact_id = get_the_ID();
+            $contact = self::is_dt_1_0()
+                ? DT_Posts::get_post( "contacts", $contact_id, true, true )
+                : Disciple_Tools_Contacts::get_contact( $contact_id, true, true );
             $maarifa_data = array();
             if ( isset( $contact["maarifa_data"] ) ) {
                 $maarifa_data = maybe_unserialize( $contact["maarifa_data"] );
