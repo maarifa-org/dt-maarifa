@@ -3,7 +3,7 @@
  * Plugin Name: Disciple Tools - Maarifa
  * Plugin URI: https://github.com/cairocoder01/dt-maarifa
  * Description: Disciple Tools - Maarifa integrates the two platforms by providing access for Maarifa to create and read contacts in Disciple Tools.
- * Version:  0.7.1
+ * Version:  0.7.2
  * Author URI: https://github.com/cairocoder01
  * GitHub Plugin URI: https://github.com/cairocoder01/dt-maarifa
  * Requires at least: 4.7.0
@@ -36,11 +36,14 @@ function dt_maarifa() {
     /*
      * Check if the Disciple.Tools theme is loaded and is the latest required version
      */
-    if ( ( 'disciple-tools-theme' !== $wp_theme->get_template() && 'disciple-tools-theme-master' !== $wp_theme->get_template() )
-        || $version < $dt_maarifa_required_dt_theme_version ) {
-        add_action( 'admin_notices', 'dt_maarifa_hook_admin_notice' );
+    $is_theme_dt = strpos( $wp_theme->get_template(), "disciple-tools-theme" ) !== false || $wp_theme->name === "Disciple Tools";
+    if ( $is_theme_dt && version_compare( $version, $dt_maarifa_required_dt_theme_version, "<" ) ) {
+        add_action( 'admin_notices', 'dt_advanced_security_hook_admin_notice' );
         add_action( 'wp_ajax_dismissed_notice_handler', 'dt_hook_ajax_notice_handler' );
-        return new WP_Error( 'current_theme_not_dt', 'Disciple Tools Theme not active or not latest version.' );
+        return false;
+    }
+    if ( !$is_theme_dt ){
+        return false;
     }
     /**
      * Load useful function from the theme
@@ -141,7 +144,7 @@ class DT_Maarifa {
 
         // Admin and settings variables
         $this->token             = 'dt_maarifa';
-        $this->version             = '0.7.1';
+        $this->version             = '0.7.2';
     }
 
     /**

@@ -83,7 +83,7 @@ class Disciple_Tools_Maarifa_Tile
     public static function dt_maarifa_declare_section_id( $sections, $post_type = "" ) {
         //check if we are on a contact
         if ( $post_type === "contacts" ) {
-            $contact_fields = Disciple_Tools_Contact_Post_Type::instance()->get_custom_fields_settings();
+            $contact_fields = DT_Posts::get_post_field_settings( "contacts" );
             //check if the language field is set
             //check if content is there before adding empty tile
             $contact_id    = get_the_ID();
