@@ -1,13 +1,13 @@
 {
   "name": "Disciple Tools - Maarifa",
-  "version": "0.7.4",
+  "version": "0.7.5",
   "download_url": "https://github.com/cairocoder01/dt-maarifa/releases/latest/download/dt-maarifa.zip",
 
   "homepage": "https://github.com/cairocoder01/dt-maarifa",
   "requires": "4.7",
   "tested": "5.6",
-  "last_updated": "2020-12-03 18:48:00",
-  "upgrade_notice": "Bug fix for WP 5.6 release",
+  "last_updated": "2021-01-12 18:00:00",
+  "upgrade_notice": "Handle errors for contacts user does not have access to",
 
   "author": "cairocoder01",
   "author_homepage": "https://github.com/cairocoder01",
