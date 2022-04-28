@@ -6,7 +6,6 @@
  * @version     0.1.0
  * @since       0.1.0
  */
-//@todo Replace all instances if DT_Maarifa
 if ( ! defined( 'ABSPATH' ) ) { exit; // Exit if accessed directly
 }
 /**
@@ -18,6 +17,7 @@ DT_Maarifa_Menu::instance();
  */
 class DT_Maarifa_Menu {
     public $token = 'dt_maarifa';
+    public $page_title = 'Maarifa Plugin';
     private static $_instance = null;
     /**
      * DT_Maarifa_Menu Instance
@@ -47,8 +47,7 @@ class DT_Maarifa_Menu {
      * @since 0.1
      */
     public function register_menu() {
-        add_menu_page( __( 'Extensions (DT)', 'disciple_tools' ), __( 'Extensions (DT)', 'disciple_tools' ), 'manage_dt', 'dt_extensions', array( $this, 'extensions_menu' ), 'dashicons-admin-generic', 59 );
-        add_submenu_page( 'dt_extensions', __( 'Maarifa Plugin', 'dt_maarifa' ), __( 'Maarifa Plugin', 'dt_maarifa' ), 'manage_dt', $this->token, array( $this, 'content' ) );
+        add_submenu_page( 'dt_extensions', $this->page_title, $this->page_title, 'manage_dt', $this->token, [ $this, 'content' ] );
     }
     /**
      * Menu stub. Replaced when Disciple Tools Theme fully loads.

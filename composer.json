@@ -9,5 +9,10 @@
         ],
         "lint": "vendor/bin/phpcs",
         "lintfix": "vendor/bin/phpcbf"
+    },
+    "config": {
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        }
     }
 }

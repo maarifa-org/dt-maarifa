@@ -111,7 +111,7 @@ msgid "Disciple Tools - Maarifa"
 msgstr ""
 
 #. Plugin URI of the plugin/theme
-msgid "https://github.com/cairocoder01/dt-maarifa"
+msgid "https://github.com/maarifa-org/dt-maarifa"
 msgstr ""
 
 #. Description of the plugin/theme
@@ -121,5 +121,5 @@ msgid ""
 msgstr ""
 
 #. Author URI of the plugin/theme
-msgid "https://github.com/cairocoder01"
+msgid "https://github.com/maarifa-org"
 msgstr ""

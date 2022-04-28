@@ -1,16 +1,16 @@
 {
   "name": "Disciple Tools - Maarifa",
   "version": "0.7.5",
-  "download_url": "https://github.com/cairocoder01/dt-maarifa/releases/latest/download/dt-maarifa.zip",
+  "download_url": "https://github.com/maarifa-org/dt-maarifa/releases/latest/download/dt-maarifa.zip",
 
-  "homepage": "https://github.com/cairocoder01/dt-maarifa",
+  "homepage": "https://github.com/maarifa-org/dt-maarifa",
   "requires": "4.7",
   "tested": "5.6",
   "last_updated": "2021-01-12 18:00:00",
   "upgrade_notice": "Handle errors for contacts user does not have access to",
 
-  "author": "cairocoder01",
-  "author_homepage": "https://github.com/cairocoder01",
+  "author": "maarifa-org",
+  "author_homepage": "https://github.com/maarifa-org",
 
   "sections": {
     "description": "Disciple Tools - Maarifa integrates the two platforms.",

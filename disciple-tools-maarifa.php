@@ -1,17 +1,17 @@
 <?php
 /**
  * Plugin Name: Disciple Tools - Maarifa
- * Plugin URI: https://github.com/cairocoder01/dt-maarifa
+ * Plugin URI: https://github.com/maarifa-org/dt-maarifa
  * Description: Disciple Tools - Maarifa integrates the two platforms by providing access for Maarifa to create and read contacts in Disciple Tools.
- * Version:  0.7.5
- * Author URI: https://github.com/cairocoder01
- * GitHub Plugin URI: https://github.com/cairocoder01/dt-maarifa
+ * Version:  0.8.0
+ * Author URI: https://github.com/maarifa-org
+ * GitHub Plugin URI: https://github.com/maarifa-org/dt-maarifa
  * Requires at least: 4.7.0
  * (Requires 4.7+ because of the integration of the REST API at 4.7 and the security requirements of this milestone version.)
  * Tested up to: 5.6
  *
  * @package Disciple_Tools_Maarifa
- * @link    https://github.com/cairocoder01
+ * @link    https://github.com/maarifa-org
  * @license GPL-2.0 or later
  *          https://www.gnu.org/licenses/gpl-2.0.html
  */
@@ -144,7 +144,7 @@ class DT_Maarifa {
 
         // Admin and settings variables
         $this->token             = 'dt_maarifa';
-        $this->version             = '0.7.5';
+        $this->version             = '0.8.0';
     }
 
     /**
@@ -169,7 +169,7 @@ class DT_Maarifa {
              * @see https://github.com/DiscipleTools/disciple-tools-version-control/wiki/How-to-Update-the-Starter-Plugin
              */
             Puc_v4_Factory::buildUpdateChecker(
-                'https://raw.githubusercontent.com/cairocoder01/dt-maarifa/master/disciple-tools-maarifa-version-control.json',
+                'https://raw.githubusercontent.com/maarifa-org/dt-maarifa/master/disciple-tools-maarifa-version-control.json',
                 __FILE__,
                 'dt-maarifa'
             );
