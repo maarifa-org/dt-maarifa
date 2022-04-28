@@ -1,13 +1,13 @@
 {
   "name": "Disciple Tools - Maarifa",
-  "version": "0.7.5",
+  "version": "0.8.0",
   "download_url": "https://github.com/maarifa-org/dt-maarifa/releases/latest/download/dt-maarifa.zip",
 
   "homepage": "https://github.com/maarifa-org/dt-maarifa",
   "requires": "4.7",
-  "tested": "5.6",
-  "last_updated": "2021-01-12 18:00:00",
-  "upgrade_notice": "Handle errors for contacts user does not have access to",
+  "tested": "5.9.3",
+  "last_updated": "2022-04-28 10:00:00",
+  "upgrade_notice": "Fix admin submenu setup",
 
   "author": "maarifa-org",
   "author_homepage": "https://github.com/maarifa-org",
