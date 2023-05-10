@@ -17,6 +17,7 @@ class Disciple_Tools_Maarifa_Hooks
     private static $_instance = null;
 
     private $version = null;
+    private $api_host = 'api.maarifa.org';
 
     /**
      * Main Disciple_Tools_Maarifa_Hooks Instance
@@ -269,9 +270,7 @@ class Disciple_Tools_Maarifa_Hooks
             );
             dt_write_log( json_encode( $data ) );
 
-            $is_local = strrpos( $site['url'], 'local' ) > -1;
-            $url = $is_local ? 'http://' : 'https://';
-            $url .= str_replace( '.lan', '.org', $site['url'] );
+            $url = $this->get_api_host( $site['url'] );
             $url .= "/response/api/version";
             $args = array(
                 'method' => 'POST',
@@ -297,9 +296,7 @@ class Disciple_Tools_Maarifa_Hooks
      */
     private function post_to_maarifa( $site_url, $transfer_token, $contact_id, $data ) {
 
-        $is_local = strrpos( $site_url, 'local' ) > -1;
-        $url = $is_local ? 'http://' : 'https://';
-        $url .= str_replace( '.lan', '.org', $site_url );
+        $url = $this->get_api_host( $site_url );
         $url .= "/response/api/contacts/$contact_id/dt-activity";
         $args = array(
             'method' => 'POST',
@@ -377,9 +374,7 @@ class Disciple_Tools_Maarifa_Hooks
     }
 
     private function get_reporting_configuration( $site_url, $transfer_token ) {
-        $is_local = strrpos( $site_url, 'local' ) > -1;
-        $url = $is_local ? 'http://' : 'https://';
-        $url .= str_replace( '.lan', '.org', $site_url );
+        $url = $this->get_api_host( $site_url );
         $url .= "/response/api/reporting-config";
         $args = array(
             'timeout' => 30, // 30s timeout
@@ -413,6 +408,14 @@ class Disciple_Tools_Maarifa_Hooks
             ));
         }
         return $list;
+    }
+
+    private function get_api_host( $site_url ) {
+        $is_local = strrpos( $site_url, 'local' ) > -1;
+        $host = $is_local ? 'http://' : 'https://';
+//        $host .= $is_local ? 'localhost:5000' : $this->api_host;
+        $host .= $this->api_host;
+        return $host;
     }
 }
 
