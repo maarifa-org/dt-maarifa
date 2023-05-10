@@ -1,12 +1,12 @@
 {
   "name": "Disciple Tools - Maarifa",
-  "version": "0.8.3",
+  "version": "0.8.4",
   "download_url": "https://github.com/maarifa-org/dt-maarifa/releases/latest/download/dt-maarifa.zip",
 
   "homepage": "https://github.com/maarifa-org/dt-maarifa",
   "requires": "4.7",
   "tested": "5.9.3",
-  "last_updated": "2022-05-04 13:00:00",
+  "last_updated": "2023-05-10 13:00:00",
   "upgrade_notice": "Fix logging error",
 
   "author": "maarifa-org",
