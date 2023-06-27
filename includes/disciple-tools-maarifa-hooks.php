@@ -411,6 +411,12 @@ class Disciple_Tools_Maarifa_Hooks
     }
 
     private function get_api_host( $site_url ) {
+
+        $api_host = get_option( "dt_maarifa_api_host" );
+        if ( !empty( $api_host ) ) {
+            return $api_host;
+        }
+
         $is_local = strrpos( $site_url, 'local' ) > -1;
         $host = $is_local ? 'http://' : 'https://';
 //        $host .= $is_local ? 'localhost:5000' : $this->api_host;
