@@ -23,7 +23,7 @@ jobs:
     - name: Build project
       run: |
         mkdir dt-maarifa
-        cp -r disciple-tools-maarifa.php LICENSE includes languages dt-maarifa/
+        cp -r disciple-tools-maarifa.php LICENSE admin hooks post-type site-link tile languages dt-maarifa/
         zip -r dt-maarifa.zip dt-maarifa
     - name: Create Release
       id: create_release
@@ -33,7 +33,7 @@ jobs:
       with:
         tag_name: ${{ github.ref }}
         release_name: Release ${{ github.ref }}
-        draft: true
+        draft: false
         prerelease: false
     - name: Upload Release Asset
       id: upload-release-asset 

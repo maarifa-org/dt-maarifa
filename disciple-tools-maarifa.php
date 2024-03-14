@@ -3,7 +3,7 @@
  * Plugin Name: Disciple Tools - Maarifa
  * Plugin URI: https://github.com/maarifa-org/dt-maarifa
  * Description: Disciple Tools - Maarifa integrates the two platforms by providing access for Maarifa to create and read contacts in Disciple Tools.
- * Version:  0.8.6
+ * Version:  0.9.0
  * Author URI: https://github.com/maarifa-org
  * GitHub Plugin URI: https://github.com/maarifa-org/dt-maarifa
  * Requires at least: 4.7.0
@@ -35,19 +35,19 @@ function dt_maarifa() {
     /*
      * Check if the Disciple.Tools theme is loaded and is the latest required version
      */
-    $is_theme_dt = class_exists( "Disciple_Tools" );
-    if ($is_theme_dt && version_compare( $version, $dt_maarifa_required_dt_theme_version, "<" )) {
-        add_action( 'admin_notices', 'dt_advanced_security_hook_admin_notice' );
+    $is_theme_dt = class_exists( 'Disciple_Tools' );
+    if ( $is_theme_dt && version_compare( $version, $dt_maarifa_required_dt_theme_version, '<' ) ) {
+        add_action( 'admin_notices', 'dt_maarifa_hook_admin_notice' );
         add_action( 'wp_ajax_dismissed_notice_handler', 'dt_hook_ajax_notice_handler' );
         return false;
     }
-    if ( !$is_theme_dt) {
+    if ( !$is_theme_dt ) {
         return false;
     }
     /**
      * Load useful function from the theme
      */
-    if ( !defined( 'DT_FUNCTIONS_READY' )) {
+    if ( !defined( 'DT_FUNCTIONS_READY' ) ) {
         require_once get_template_directory() . '/dt-core/global-functions.php';
     }
 
@@ -56,6 +56,19 @@ function dt_maarifa() {
 }
 add_action( 'after_setup_theme', 'dt_maarifa', 20 );
 
+//register the D.T Plugin
+add_filter( 'dt_plugins', function ( $plugins ){
+    $plugin_data = get_file_data( __FILE__, [
+        'Version' => 'Version',
+        'Plugin Name' => 'Plugin Name'
+    ], false );
+    $plugins['dt-maarifa'] = [
+        'plugin_url' => trailingslashit( plugin_dir_url( __FILE__ ) ),
+        'version' => $plugin_data['Version'] ?? null,
+        'name' => $plugin_data['Plugin Name'] ?? null,
+    ];
+    return $plugins;
+});
 /**
  * Singleton class for setting up the plugin.
  *
@@ -65,13 +78,13 @@ add_action( 'after_setup_theme', 'dt_maarifa', 20 );
 class DT_Maarifa {
 
     public static $token = 'dt_maarifa';
-    public static $version = '0.8.6';
+    public static $version = '0.9.0';
 
 
     private static $_instance = null;
 
     public static function instance() {
-        if (is_null( self::$_instance )) {
+        if ( is_null( self::$_instance ) ) {
             self::$_instance = new self();
         }
         return self::$_instance;
@@ -87,20 +100,22 @@ class DT_Maarifa {
     private function __construct() {
         // $is_rest = dt_is_rest();
 
-        // add site to site link class and capabilities
-        require_once( 'includes/disciple-tools-maarifa-sitelink.php' );
+        // add post type and modifications to contacts
+        require_once( 'post-type/loader.php' );
 
-        // add custom tile
-        require_once( 'includes/disciple-tools-maarifa-tile.php' );
+        // add site to site link class and capabilities
+        require_once( 'site-link/maarifa-sitelink.php' );
+
+        require_once( 'tile/maarifa-tile.php' );
 
         // adds starter admin page and section for plugin
-        if (is_admin()) {
-            require_once( 'includes/admin/admin-menu-and-tabs.php' );
+        if ( is_admin() ) {
+            require_once( 'admin/admin-menu-and-tabs.php' );
         }
 
         $this->i18n();
 
-        require_once( 'includes/disciple-tools-maarifa-hooks.php' );
+        require_once( 'hooks/maarifa-hooks.php' );
     }
 
     /**
@@ -111,14 +126,6 @@ class DT_Maarifa {
      * @access public
      */
     public static function activation() {
-
-        // Confirm 'Administrator' has 'manage_dt' privilege. This is key in 'remote' configuration when
-        // Disciple Tools theme is not installed, otherwise this will already have been installed by the Disciple Tools Theme
-        $role = get_role( 'administrator' );
-        if ( !empty( $role )) {
-            $role->add_cap( 'manage_dt' ); // gives access to dt plugin options
-        }
-
     }
 
     /**
@@ -183,7 +190,7 @@ class DT_Maarifa {
      * @since  0.1
      * @access public
      */
-    public function __call( $method = '', $args = array()) {
+    public function __call( $method = '', $args = array() ) {
         // @codingStandardsIgnoreLine
         _doing_it_wrong("dt_maarifa::{$method}", esc_html__('Method does not exist.', 'dt_maarifa'), '0.1');
         unset( $method, $args );
@@ -202,12 +209,12 @@ if ( ! function_exists( 'dt_maarifa_hook_admin_notice' ) ) {
         global $dt_maarifa_required_dt_theme_version;
         $wp_theme = wp_get_theme();
         $current_version = $wp_theme->version;
-        $message = __( "'Disciple Tools - Maarifa' requires 'Disciple Tools' theme to work. Please activate 'Disciple Tools' theme or make sure it is latest version.", "dt_maarifa" );
-        if ($wp_theme->get_template() === "disciple-tools-theme") {
+        $message = __( "'Disciple Tools - Maarifa' requires 'Disciple Tools' theme to work. Please activate 'Disciple Tools' theme or make sure it is latest version.", 'dt_maarifa' );
+        if ( $wp_theme->get_template() === 'disciple-tools-theme' ) {
             $message .= sprintf( esc_html__( 'Current Disciple Tools version: %1$s, required version: %2$s', 'dt_maarifa' ), esc_html( $current_version ), esc_html( $dt_maarifa_required_dt_theme_version ) );
         }
         // Check if it's been dismissed...
-        if ( !get_option( 'dismissed-dt-maarifa', false )) { ?>
+        if ( !get_option( 'dismissed-dt-maarifa', false ) ) { ?>
       <div class="notice notice-error notice-dt-maarifa is-dismissible" data-notice="dt-maarifa">
         <p><?php echo esc_html( $message ); ?></p>
       </div>
@@ -232,11 +239,11 @@ if ( ! function_exists( 'dt_maarifa_hook_admin_notice' ) ) {
 /**
  * AJAX handler to store the state of dismissible notices.
  */
-if ( !function_exists( "dt_hook_ajax_notice_handler" )){
+if ( !function_exists( 'dt_hook_ajax_notice_handler' ) ){
     function dt_hook_ajax_notice_handler(){
         check_ajax_referer( 'wp_rest_dismiss', 'security' );
-        if ( isset( $_POST["type"] ) ){
-            $type = sanitize_text_field( wp_unslash( $_POST["type"] ) );
+        if ( isset( $_POST['type'] ) ){
+            $type = sanitize_text_field( wp_unslash( $_POST['type'] ) );
             update_option( 'dismissed-' . $type, true );
         }
     }
@@ -252,14 +259,14 @@ if ( !function_exists( "dt_hook_ajax_notice_handler" )){
  * @see https://github.com/DiscipleTools/disciple-tools-version-control/wiki/How-to-Update-the-Starter-Plugin
  */
 add_action( 'plugins_loaded', function () {
-    if (is_admin() && !( is_multisite() && class_exists( "DT_Multisite" ) ) || wp_doing_cron()) {
+    if ( is_admin() && !( is_multisite() && class_exists( 'DT_Multisite' ) ) || wp_doing_cron() ) {
         // Check for plugin updates
-        if ( !class_exists( 'Puc_v4_Factory' )) {
-            if (file_exists( get_template_directory() . '/dt-core/libraries/plugin-update-checker/plugin-update-checker.php' )) {
+        if ( !class_exists( 'Puc_v4_Factory' ) ) {
+            if ( file_exists( get_template_directory() . '/dt-core/libraries/plugin-update-checker/plugin-update-checker.php' ) ) {
                 require( get_template_directory() . '/dt-core/libraries/plugin-update-checker/plugin-update-checker.php' );
             }
         }
-        if (class_exists( 'Puc_v4_Factory' )) {
+        if ( class_exists( 'Puc_v4_Factory' ) ) {
             Puc_v4_Factory::buildUpdateChecker(
                 'https://raw.githubusercontent.com/maarifa-org/dt-maarifa/master/disciple-tools-maarifa-version-control.json',
                 __FILE__,
@@ -270,7 +277,7 @@ add_action( 'plugins_loaded', function () {
     }
 
     $version = get_option( DT_Maarifa::$token . '_version', '' );
-    if ($version !== DT_Maarifa::$version) {
+    if ( $version !== DT_Maarifa::$version ) {
         update_option( DT_Maarifa::$token . '_version', DT_Maarifa::$version );
         do_action( DT_Maarifa::$token . '_upgrade', DT_Maarifa::$version );
     }
