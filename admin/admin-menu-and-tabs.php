@@ -138,6 +138,7 @@ class DT_Maarifa_Tab_General
     public function main_column() {
         $share_user_id = get_option( 'dt_maarifa_share_user_id' );
         $api_host = get_option( 'dt_maarifa_api_host' );
+        $media_host = get_option( 'dt_maarifa_media_host' );
         $potential_user_list = get_users(
             array(
                 'role__in' => array( 'dispatcher', 'administrator', 'dt_admin', 'multiplier', 'marketer', 'strategist' ),
@@ -178,18 +179,20 @@ class DT_Maarifa_Tab_General
         </tbody>
         </table>
 
-        <table class="widefat striped hidden">
+        <?php if ( current_user_can( 'administrator' ) ): ?>
+        <br>
+        <table class="widefat striped">
         <thead>
-        <th>API Host</th>
+        <th>Media URL</th>
         </thead>
         <tbody>
         <tr>
             <td>
                 <form method="POST" action="">
                     <?php wp_nonce_field( 'security_headers', 'security_headers_nonce' ); ?>
-                    <p>Override the API endpoint used for communication with Maarifa. (ADMIN PURPOSES ONLY)</p>
+                    <p>URL root for media files. (ADMIN PURPOSES ONLY)</p>
                     <hr>
-                    Endpoint: <input type="text" name="api_host" value="<?php echo esc_attr( $api_host ) ?>" />
+                    URL: <input type="text" name="media_host" value="<?php echo esc_attr( $media_host ) ?>" />
 
                     <button type="submit" class="button right">Update</button>
                 </form>
@@ -197,7 +200,28 @@ class DT_Maarifa_Tab_General
         </tr>
         </tbody>
         </table>
-        <?php
+            <br>
+            <table class="widefat striped">
+                <thead>
+                <th>API Host</th>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>
+                        <form method="POST" action="">
+                            <?php wp_nonce_field( 'security_headers', 'security_headers_nonce' ); ?>
+                            <p>Override the API endpoint used for communication with Maarifa. (ADMIN PURPOSES ONLY)</p>
+                            <hr>
+                            Endpoint: <input type="text" name="api_host" value="<?php echo esc_attr( $api_host ) ?>" />
+
+                            <button type="submit" class="button right">Update</button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+            <?php
+        endif;
     }
     public function right_column() {
         ?>
@@ -234,6 +258,8 @@ class DT_Maarifa_Tab_General
                     update_option( 'dt_maarifa_share_user_id', sanitize_text_field( wp_unslash( $_POST['share_user_id'] ) ) );
                 } else if ( isset( $_POST['api_host'] ) ) {
                     update_option( 'dt_maarifa_api_host', sanitize_text_field( wp_unslash( $_POST['api_host'] ) ) );
+                } else if ( isset( $_POST['media_host'] ) ) {
+                    update_option( 'dt_maarifa_media_host', sanitize_text_field( wp_unslash( $_POST['media_host'] ) ) );
                 }
             }
         }

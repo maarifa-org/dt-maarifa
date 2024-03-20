@@ -52,6 +52,8 @@ class Disciple_Tools_Maarifa_Hooks
         add_action( 'dt_post_updated', array( $this, 'post_updated' ), 10, 4 );
         add_action( 'dt_comment_created', array( $this, 'comment_created' ), 10, 4 );
 
+        add_filter( 'dt_filter_post_comments', [ $this, 'parse_comment_audio_url' ], 10, 3 );
+
         add_filter( 'dt_assignable_users_compact', array( $this, 'assignable_users_compact' ), 10, 3 );
 
         add_filter( 'dt_data_reporting_configurations', array( $this, 'data_reporting_configurations' ), 10, 1 );
@@ -358,6 +360,25 @@ class Disciple_Tools_Maarifa_Hooks
         return;
     }
 
+    public function parse_comment_audio_url( $comments, $post_type, $post_id ) {
+        $media_host = get_option( 'dt_maarifa_media_host' );
+        if ( empty( $media_host ) ) {
+            return $comments;
+        }
+
+        foreach ( $comments as $id => $comment ) {
+            if ( $comment['comment_type'] === 'maarifa' && strpos( $comment['comment_content'], 'Type: Voicemail' ) > -1 ) {
+                if ( !key_exists( 'audio_url', $comment['comment_meta'] ) ) {
+                    $audio_url = str_replace( 'Type: Voicemail', '', $comment['comment_content'] );
+                    $audio_url = trim( str_replace( 'Responder: ميرا', '', $audio_url ) );
+                    $comments[$id]['comment_meta']['audio_url'][] = [
+                        'value' => "$media_host$audio_url",
+                    ];
+                }
+            }
+        }
+        return $comments;
+    }
 
     public function assignable_users_compact( $list, $search_string, $get_all ) {
         if ( empty( $search_string ) || strpos( 'maarifa', strtolower( $search_string ) ) > -1 ) {
