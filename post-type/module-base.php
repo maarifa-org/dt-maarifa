@@ -29,7 +29,7 @@ class Disciple_Tools_Maarifa_Base extends DT_Module_Base {
 
     public function __construct() {
         parent::__construct();
-        if ( !self::check_enabled_and_prerequisites() ){
+        if ( !self::check_enabled_and_prerequisites() || true ) { // force disable for now
             return;
         }
 
