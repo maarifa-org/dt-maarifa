@@ -370,7 +370,8 @@ class Disciple_Tools_Maarifa_Hooks
             if ( $comment['comment_type'] === 'maarifa' && strpos( $comment['comment_content'], 'Type: Voicemail' ) > -1 ) {
                 if ( !key_exists( 'audio_url', $comment['comment_meta'] ) ) {
                     $audio_url = str_replace( 'Type: Voicemail', '', $comment['comment_content'] );
-                    $audio_url = trim( str_replace( 'Responder: ميرا', '', $audio_url ) );
+                    $audio_url = trim( preg_replace( '/Responder: \S+/m', '', $audio_url ) );
+
                     $comments[$id]['comment_meta']['audio_url'][] = [
                         'value' => "$media_host$audio_url",
                     ];
