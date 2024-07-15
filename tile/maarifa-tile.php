@@ -35,30 +35,27 @@ class Disciple_Tools_Maarifa_Tile
      * @since  0.1.0
      */
     public function __construct() {
-        add_filter( 'dt_details_additional_section_ids', array( $this, 'dt_maarifa_declare_section_id' ), 999, 2 );
-        add_action( 'dt_details_additional_section', array( $this, 'dt_maarifa_add_section' ) );
+        add_filter( 'dt_details_additional_tiles', [ $this, 'dt_details_additional_tiles' ], 10, 2 );
+        add_action( 'dt_details_additional_section', [ $this, 'dt_maarifa_add_section' ], 30, 2 );
     } // End __construct()
 
-    public static function dt_maarifa_declare_section_id( $sections, $post_type = '' ) {
-        //check if we are on a contact
-        if ( $post_type === 'contacts' ) {
-            //check if content is there before adding empty tile
-            $contact_id    = get_the_ID();
-            if ( $contact_id ){
-                $contact = DT_Posts::get_post( 'contacts', $contact_id, true, true );
-                if ( !is_wp_error( $contact ) && isset( $contact['maarifa_data'] ) ) {
-                    $contact_fields = DT_Posts::get_post_field_settings( 'contacts' );
-                    if ( isset( $contact_fields['maarifa_data'] ) ) {
-                        $sections[] = 'contact_maarifa_data';
-                    }
-                }
-            }
+    /**
+     * This function registers a new tile to a specific post type
+     *
+     * @param array $tiles
+     * @param string $post_type
+     * @return mixed
+     */
+    public function dt_details_additional_tiles( $tiles, $post_type = '' ) {
+        if ( $post_type === 'contacts' ){
+            $tiles['dt_maarifa'] = [ 'label' => __( 'Maarifa', 'dt_maarifa' ) ];
         }
-        return $sections;
+        return $tiles;
     }
 
-    public static function dt_maarifa_add_section( $section ) {
-        if ( $section == 'contact_maarifa_data' ) {
+    public static function dt_maarifa_add_section( $section, $post_type ) {
+        if ( $post_type === 'contacts' && $section === 'dt_maarifa' ){
+
             $contact_id = get_the_ID();
             $contact = DT_Posts::get_post( 'contacts', $contact_id, true, true );
             $maarifa_data = array();
@@ -86,9 +83,6 @@ class Disciple_Tools_Maarifa_Tile
             </style>
 
             <?php if ( isset( $maarifa_data['id'] ) ): ?>
-                <label class="section-header">
-                    <?php esc_html_e( 'Maarifa', 'dt_maarifa' ) ?>
-                </label>
 
                 <div class="section-subheader section-subheader-maarifa">
                     <?php esc_html_e( 'ID', 'dt_maarifa' ) ?>
