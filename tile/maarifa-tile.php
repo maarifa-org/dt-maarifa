@@ -35,9 +35,52 @@ class Disciple_Tools_Maarifa_Tile
      * @since  0.1.0
      */
     public function __construct() {
+        add_filter( 'dt_custom_fields_settings', array( $this, 'dt_contact_fields' ), 10, 2 );
+        add_filter( 'dt_search_extra_post_meta_fields', array( $this, 'dt_search_fields' ), 10, 1 );
+
         add_filter( 'dt_details_additional_tiles', [ $this, 'dt_details_additional_tiles' ], 10, 2 );
         add_action( 'dt_details_additional_section', [ $this, 'dt_maarifa_add_section' ], 30, 2 );
+
+        add_filter( 'dt_comments_additional_sections', array( $this, 'add_comment_section' ), 10, 2 );
+        add_filter( 'dt_data_reporting_field_output', array( $this, 'data_reporting_field_output' ), 10, 4 );
+
     } // End __construct()
+
+    public static function dt_contact_fields( array $fields, string $post_type = '' ){
+        //check if we are dealing with a contact
+        if ( $post_type === 'contacts' ){
+            // Define a field to store misc Maarifa data for the tile
+            if ( !isset( $fields['maarifa_data'] ) ){
+                $fields['maarifa_data'] = array(
+                    'name' => __( 'Maarifa Data', 'dt_maarifa' ),
+                    'type' => 'array',
+                    'default' => array()
+                );
+            }
+            // Define a field to detect when post updates come from Maarifa so we can avoid sending it back again
+            if ( !isset( $fields['maarifa_sync'] ) ){
+                $fields['maarifa_sync'] = array(
+                    'name' => __( 'Maarifa Sync', 'dt_maarifa' ),
+                    'type' => 'bool',
+                    'default' => false,
+                    'hidden' => true
+                );
+            }
+        }
+        //don't forget to return the update fields array
+        return $fields;
+    }
+
+    /**
+     * Add maarifa_data field to contact search
+     * @param array $fields
+     * @return array
+     * @since 0.5.3
+     */
+    public static function dt_search_fields( array $fields ) {
+        array_push( $fields, 'maarifa_data' );
+        return $fields;
+    }
 
     /**
      * This function registers a new tile to a specific post type
@@ -241,6 +284,36 @@ class Disciple_Tools_Maarifa_Tile
             </script>
             <?php
         }
+    }
+
+
+    public function add_comment_section( $sections, $post_type ) {
+        if ( $post_type === 'contacts' ) {
+            $sections[] = array(
+                'key' => 'maarifa',
+                'label' => __( 'Maarifa', 'dt_maarifa' )
+            );
+        }
+        return $sections;
+    }
+
+    public function add_duplicate_check_field( $fields ) {
+        $fields[] = 'maarifa_data';
+        return $fields;
+    }
+
+    public function data_reporting_field_output( $field_value, $type, $field_key, $flatten ) {
+        if ( $field_key == 'maarifa_data' ) {
+            $data = $field_value;
+            if ( is_string( $field_value ) ) {
+                $data = json_decode( $field_value, true );
+            }
+            if ( is_array( $data ) && isset( $data['id'] ) ) {
+                return strval( $data['id'] );
+            }
+            return '';
+        }
+        return $field_value;
     }
 }
 
