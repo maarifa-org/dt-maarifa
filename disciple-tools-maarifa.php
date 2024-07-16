@@ -78,7 +78,7 @@ add_filter( 'dt_plugins', function ( $plugins ){
 class DT_Maarifa {
 
     public static $token = 'dt_maarifa';
-    public static $version = '0.9.0';
+    public static $version = '0.9.3';
 
 
     private static $_instance = null;
