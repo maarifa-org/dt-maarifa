@@ -91,7 +91,19 @@ class Disciple_Tools_Maarifa_Tile
      */
     public function dt_details_additional_tiles( $tiles, $post_type = '' ) {
         if ( $post_type === 'contacts' ){
-            $tiles['dt_maarifa'] = [ 'label' => __( 'Maarifa', 'dt_maarifa' ) ];
+            $tiles['dt_maarifa'] = [
+                'label' => __( 'Maarifa', 'dt_maarifa' ),
+                'display_conditions' => [
+                    'visibility' => 'custom',
+                    'conditions' => [
+                        'sources___maarifa' => [
+                            'key' => 'sources',
+                            'value' => 'maarifa',
+                        ],
+                    ],
+                    'operator' => 'or',
+                ],
+            ];
         }
         return $tiles;
     }
