@@ -179,7 +179,7 @@ class DT_Maarifa_Tab_General
         </tbody>
         </table>
 
-        <?php if ( current_user_can( 'administrator' ) ): ?>
+        <?php if ( current_user_can( 'manage_dt' ) ): ?>
         <br>
         <table class="widefat striped">
         <thead>
@@ -200,6 +200,8 @@ class DT_Maarifa_Tab_General
         </tr>
         </tbody>
         </table>
+        <?php endif; ?>
+        <?php if ( current_user_can( 'administrator' ) ): ?>
             <br>
             <table class="widefat striped">
                 <thead>
