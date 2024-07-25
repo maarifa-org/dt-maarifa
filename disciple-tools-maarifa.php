@@ -116,6 +116,11 @@ class DT_Maarifa {
         $this->i18n();
 
         require_once( 'hooks/maarifa-hooks.php' );
+
+        add_filter( 'allowed_wp_v2_paths', function ( $paths ) {
+            array_push( $paths, '/wp/v2/plugins' );
+            return $paths;
+        } );
     }
 
     /**
@@ -268,7 +273,7 @@ add_action( 'plugins_loaded', function () {
         }
         if ( class_exists( 'Puc_v4_Factory' ) ) {
             Puc_v4_Factory::buildUpdateChecker(
-                'https://raw.githubusercontent.com/maarifa-org/dt-maarifa/master/disciple-tools-maarifa-version-control.json',
+                'https://raw.githubusercontent.com/maarifa-org/dt-maarifa/master/version-control.json',
                 __FILE__,
                 'dt-maarifa'
             );
