@@ -23,7 +23,7 @@ jobs:
     - name: Build project
       run: |
         mkdir dt-maarifa
-        cp -r disciple-tools-maarifa.php LICENSE admin hooks post-type site-link tile languages dt-maarifa/
+        cp -r disciple-tools-maarifa.php admin hooks post-type site-link tile languages version-control.json LICENSE dt-maarifa/
         zip -r dt-maarifa.zip dt-maarifa
     - name: Create Release
       id: create_release
