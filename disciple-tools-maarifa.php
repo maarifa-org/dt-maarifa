@@ -78,7 +78,6 @@ add_filter( 'dt_plugins', function ( $plugins ){
 class DT_Maarifa {
 
     public static $token = 'dt_maarifa';
-    public static $version = '0.9.6';
 
 
     private static $_instance = null;
@@ -281,9 +280,13 @@ add_action( 'plugins_loaded', function () {
         }
     }
 
-    $version = get_option( DT_Maarifa::$token . '_version', '' );
-    //    dt_write_log( "Checking dt-maarifa version ($version vs " . DT_Maarifa::$version . ')' );
-    if ( $version !== DT_Maarifa::$version ) {
+    $plugin_data = get_file_data( __FILE__, [
+        'Version' => 'Version',
+    ], false );
+
+    $version_db = get_option( DT_Maarifa::$token . '_version', '' );
+    error_log( "Checking dt-maarifa version ($version_db vs " . $plugin_data['Version'] . ')' );
+    if ( $version_db !== $plugin_data['Version'] ) {
 
         require_once( get_template_directory() . '/dt-core/admin/site-link-post-type.php' );
 
@@ -305,10 +308,10 @@ add_action( 'plugins_loaded', function () {
 
             $data = array(
                 'site' => $url,
-                'version' => DT_Maarifa::$version
+                'version' => $plugin_data['Version']
             );
-    //            dt_write_log( 'sending updated dt-maarifa version' );
-    //            dt_write_log( json_encode( $data ) );
+            error_log( 'sending updated dt-maarifa version' );
+            error_log( json_encode( $data ) );
 
             $host = get_option( 'dt_maarifa_api_host' );
             if ( empty( $host ) ) {
@@ -325,12 +328,13 @@ add_action( 'plugins_loaded', function () {
                 ),
                 'body' => json_encode( $data )
             );
-    //            dt_write_log( $url );
+
+            error_log( $url );
             $result = wp_remote_post( $url, $args );
-            if ( !is_wp_error( $result ) ){
-    //                dt_write_log( 'Error sending version to Maarifa: ' . serialize( $result ) );
-    //        } else {
-                update_option( DT_Maarifa::$token . '_version', DT_Maarifa::$version );
+            if ( is_wp_error( $result ) ){
+                error_log( 'Error sending version to Maarifa: ' . serialize( $result ) );
+            } else {
+                update_option( DT_Maarifa::$token . '_version', $plugin_data['Version'] );
             }
         }
     }
