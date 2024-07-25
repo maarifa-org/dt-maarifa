@@ -90,20 +90,27 @@ class Disciple_Tools_Maarifa_Tile
      * @return mixed
      */
     public function dt_details_additional_tiles( $tiles, $post_type = '' ) {
-        if ( $post_type === 'contacts' ){
-            $tiles['dt_maarifa'] = [
-                'label' => __( 'Maarifa', 'dt_maarifa' ),
-                'display_conditions' => [
-                    'visibility' => 'custom',
-                    'conditions' => [
-                        'sources___maarifa' => [
-                            'key' => 'sources',
-                            'value' => 'maarifa',
+        if ( $post_type === 'contacts' ) {
+            $contact_id = get_the_ID();
+            if ( $contact_id ) {
+                $contact = DT_Posts::get_post( 'contacts', $contact_id, true, true );
+                if ( !is_wp_error( $contact ) && isset( $contact['maarifa_data'] ) ) {
+
+                    $tiles['dt_maarifa'] = [
+                        'label' => __( 'Maarifa', 'dt_maarifa' ),
+                        'display_conditions' => [
+                            'visibility' => 'custom',
+                            'conditions' => [
+                                'sources___maarifa' => [
+                                    'key' => 'sources',
+                                    'value' => 'maarifa',
+                                ],
+                            ],
+                            'operator' => 'or',
                         ],
-                    ],
-                    'operator' => 'or',
-                ],
-            ];
+                    ];
+                }
+            }
         }
         return $tiles;
     }
@@ -297,7 +304,6 @@ class Disciple_Tools_Maarifa_Tile
             <?php
         }
     }
-
 
     public function add_comment_section( $sections, $post_type ) {
         if ( $post_type === 'contacts' ) {
