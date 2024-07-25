@@ -1,0 +1,20 @@
+{
+  "name": "Disciple Tools - Maarifa",
+  "version": "0.9.6",
+  "last_updated": "2024-07-15 11:00:00",
+  "author": "maarifa-org",
+  "author_homepage": "https://github.com/maarifa-org",
+  "git_owner": "maarifa-org",
+  "git_repo": "dt-maarifa",
+  "download_url": "https://github.com/maarifa-org/dt-maarifa/releases/latest/download/dt-maarifa.zip",
+  "homepage": "https://github.com/maarifa-org/dt-maarifa",
+
+  "requires": "4.7",
+  "tested": "6.5",
+  "upgrade_notice": "Support voicemail playback",
+
+  "sections": {
+    "description": "Disciple Tools - Maarifa integrates the two platforms.",
+    "installation": "(Required) You must have Disciple.Tools Theme installed before using this plugin. <br><br>Once Disciple.Tools is installed, you can use the normal Plugin system to install the plugin."
+  }
+}
