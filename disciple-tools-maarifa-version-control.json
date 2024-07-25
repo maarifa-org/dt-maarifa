@@ -1,12 +1,12 @@
 {
   "name": "Disciple Tools - Maarifa",
-  "version": "0.9.6",
+  "version": "0.9.7",
   "download_url": "https://github.com/maarifa-org/dt-maarifa/releases/latest/download/dt-maarifa.zip",
 
   "homepage": "https://github.com/maarifa-org/dt-maarifa",
   "requires": "4.7",
   "tested": "6.5",
-  "last_updated": "2024-07-15 11:00:00",
+  "last_updated": "2024-07-25 11:00:00",
   "upgrade_notice": "Support voicemail playback",
 
   "author": "maarifa-org",
