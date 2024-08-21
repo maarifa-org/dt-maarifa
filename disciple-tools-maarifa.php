@@ -98,7 +98,12 @@ class DT_Maarifa {
      * @access private
      */
     private function __construct() {
-        // $is_rest = dt_is_rest();
+        $is_rest = dt_is_rest();
+
+        if ( $is_rest && strpos( dt_get_url_path(), 'dt-maarifa' ) !== false ) {       
+
+            require_once( 'rest-api/rest-api.php' ); // adds starter rest api class
+        }
 
         // add post type and modifications to contacts
         require_once( 'post-type/loader.php' );
