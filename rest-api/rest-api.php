@@ -171,7 +171,7 @@
 
         public function prefix_validate_args( $value, $request, $param ){
 
-            dt_write_log("ENTROU NO prefix_validate_args");
+            dt_write_log("Prefix_validate_args");
 
             $attributes = $request->get_attributes();
 
@@ -206,6 +206,211 @@
             return true;
         }
 
+        public function mapFieldsToContact ( $fields )
+        {
+            dt_write_log("MapFieldsToContact");
+
+            dt_write_log($fields);
+
+            $contact_map = $fields;
+            $fields_map = null;
+            
+            dt_write_log($contact_map);
+            //$fields_map;
+
+
+            if (!empty($contact_map['id'])) { 
+                $fields_map['maarifa_data'] = $contact_map['id'];
+            }
+            if (!empty($contact_map['name'])) {
+                $fields_map['name'] = $contact_map['name'];
+            }
+            if (!empty($contact_map['email'])) { //VER DETALHES
+                $fields_map['contact_email'] = $contact_map['email'] ;
+            }
+            if (!empty($contact_map['phone'])) { 
+//                $fields_map['contact_phone'] = $contact_map['phonecode'] . $contact_map['phone'];
+                $fields_map['contact_phone'] = $contact_map['phone'];
+            }
+            if (!empty($contact_map['facebook'])) {
+                $fields_map['contact_facebook'] = $contact_map['facebook'];
+            }            
+        
+
+
+            //Location
+            if (!empty($contact_map['street'])) { //VER DETALHES
+                $fields_map['contact_address'] = $contact_map['street'];
+            }                        
+            if (!empty($contact_map['country'])) { //VER DETALHES
+                //$fields_map['country'] = $this->getLocations();
+                //$fields_map['location_grid_meta'] = $contact_map['country'];
+            }            
+            
+
+            // Age
+            if (!empty($contact_map['age'])) { 
+                $age = '';
+                switch ($contact_map['age']) {
+                    case '<19':
+                        $age = '0-17';
+                        break;
+                    case '<26':
+                        $age = '18-24';
+                        break;
+                    case '<41':
+                        $age = '25-34';
+                        break;
+                    case '<41':
+                        $age = '35-44';
+                        break;
+                    case '>41':
+                        $age = '45+';
+                        break;
+                }
+
+                if (!empty($age)) {
+                    $fields_map['age'] = $age;
+                }
+            }
+
+
+            if (!empty($contact_map['notes'])) {
+                //$fields_map['notes'] = $contact_map['notes'];
+
+                $note = null;
+
+                foreach ($contact_map['notes'] as $note) {     
+                    $contact_map['notes'][] = $note;
+                }
+            }
+
+            //if (!empty($contact_map['tags'])) { //VER DETALHES
+            //    $fields_map['tags'] = $contact_map['tags'];
+            //}
+            //if (!empty($contact_map['notes'])) { //VER DETALHES
+            //    $fields_map['notes'] = $contact_map['notes'];
+            //}            
+
+            //////////////////////
+       
+            if (!empty($contact_map['background'])) { 
+                $fields_map['background'] = $contact_map['background'];
+            }         
+            if (!empty($contact_map['spiritual'])) { 
+                $fields_map['spiritual'] = $contact_map['spiritual'];
+            } 
+
+            //Ignoring those fields
+            /*        
+            if (!empty($contact_map['created'])) { //VER DETALHES
+                $fields_map['created'] = $contact_map['created'];
+            }         
+            if (!empty($contact_map['last_updated'])) { //VER DETALHES
+                $fields_map['last_updated'] = $contact_map['last_updated'];
+            }         
+            if (!empty($contact_map['last_seen'])) { //VER DETALHES
+                $fields_map['last_seen'] = $contact_map['last_seen'];
+            }         
+            if (!empty($contact_map['first_contact'])) { //VER DETALHES
+                $fields_map['first_contact'] = $contact_map['first_contact'];
+            }                                                                                 
+            if (!empty($contact_map['first_contact_details'])) { //VER DETALHES
+                $fields_map['first_contact_details'] = $contact_map['first_contact_details'];
+            }                              
+            if (!empty($contact_map['first_source'])) { //VER DETALHES
+                $fields_map['first_source'] = $contact_map['first_contact'];
+            }                              
+            if (!empty($contact_map['ds_user_id'])) { //VER DETALHES
+                $fields_map['ds_user_id'] = $contact_map['ds_user_id'];
+            }                 
+            if (!empty($contact_map['external_id'])) { //VER DETALHES
+                $fields_map['external_id'] = $contact_map['external_id'];
+            }                 
+            if (!empty($contact_map['external_url'])) { //VER DETALHES
+                $fields_map['external_url'] = $contact_map['external_url'];
+            }                            
+            if (!empty($contact_map['location_details'])) { //VER DETALHES
+                $fields_map['location_details'] = $contact_map['location_details'];
+            }              
+*/
+
+            if (!empty($contact_map['milestone'])) { 
+                $milestone = '';           
+
+                foreach ($contact_map['milestone'] as $milestone) {                          
+                
+                    switch ($milestone) {
+
+                        case 'believer':
+                        case 'profession':
+                            $fields_map['milestones'][] = 'milestone_belief';
+                            break;
+                        case 'began study':
+                            $fields_map['milestones'][] = 'milestone_reading_bible';
+                            break;
+                        case 'joined group':
+                            $fields_map['milestones'][] = 'milestone_in_group';
+                            break;
+                        case 'left group':
+                            // if milestone_in_group is already set, that means there was
+                            // a more recent interaction for them joining a group, so this
+                            // was from leaving a previous group but later joining another (or the same one again)
+                            $key = array_search('milestone_in_group', $fields_map['milestones']);
+                            if ($key !== false) {
+                                array_splice($fields_map['milestones'], $key, 1);
+                            }
+                            break;
+                        case 'started group':
+                            $fields_map['milestones'][] = 'milestone_planting';
+                            break;
+                        case 'baptized':
+                            $fields_map['milestones'][] = 'milestone_baptized';
+                            $fields_map['baptism_date'] = date("Y-m-d", $interaction->when_made);
+                            break;
+
+                        /*
+                        case 'milestone_has_bible':
+                            // has bible...
+                            break;
+                        case 'milestone_reading_bible':
+                            // studying...
+                            break;   
+                        case 'milestone_belief':
+                            // profession...
+                            break;   
+                        case 'milestone_can_share':
+                            // can share...
+                            break;   
+                        case 'milestone_sharing':
+                            // sharing...
+                            break;   
+                        case 'milestone_baptized':
+                            // baptized...
+                            break;   
+                        case 'milestone_baptizing ':
+                            // baptizing...
+                            break;
+                        case 'milestone_in_group ':
+                            // in group...
+                                break;                                                                                                               
+                        case 'milestone_planting ':
+                            // starting groups...
+                            break;     
+                        default:
+                            // code...
+                            break;
+                            */
+                    }
+                }
+            }
+
+            dt_write_log('Fields_map');
+            dt_write_log($fields_map);
+
+            return $fields_map;
+        }
+
 
         public static function prefix_validate_args_static( $value, $request, $param ) {
             return self::instance()->prefix_validate_args( $value, $request, $param );
@@ -213,9 +418,23 @@
 
         public function contacts( WP_REST_Request $request ) {
                     
-                    dt_write_log("ENTROU NO contacts");
-                 
+                    dt_write_log("Contacts");
+                                     
                     $fields     = $request->get_json_params() ?? $request->get_body_params();
+
+                    dt_write_log("fields antes");
+
+                    dt_write_log($fields);
+
+                    //Converts Maarifa field names to DT field names
+                    $fields2 = $this->mapFieldsToContact($fields);
+
+                    $fields = $fields2;
+
+                    dt_write_log("fields depois");
+                    dt_write_log($this->mapFieldsToContact($fields));
+
+
                     $url_params = $request->get_url_params();
                     $get_params = $request->get_query_params();
                     $silent     = isset( $get_params['silent'] ) && $get_params['silent'] === 'true';
