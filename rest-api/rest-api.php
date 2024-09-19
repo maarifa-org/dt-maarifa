@@ -77,22 +77,6 @@
                     ];
         
 
-/*                    //create_post - Create or update contact
-                    register_rest_route(
-
-                        $this->namespace, '/(?P<post_type>\w+)/',  [
-                            
-                            [
-                            'methods'  => 'POST',
-                            'callback' => [ $this, 'contacts' ],
-                            'args' => [
-                                'post_type' => $arg_schemas['post_type'],
-                                ],
-                            'permission_callback' => '__return_true',
-                            ]
-                        ]
-                     );*/
-
                     //create_post - Create or update contact
                     register_rest_route(
 
@@ -111,6 +95,7 @@
                      );                     
 
 
+/* Verify if I need that code
                     //create_post - Update contact with Maarifa id
                     register_rest_route(
 
@@ -128,6 +113,7 @@
                             ]
                         ]
                      );   
+*/                     
 
 
                     //update_post - Update contact by given DT contact ID
@@ -138,12 +124,13 @@
                                 'callback' => [ $this, 'update_post' ],
                                 'args' => [
                                     'post_type' => $arg_schemas['post_type'],
-                                    'id' => $arg_schemas['id'],
+                                    'id' => $arg_schemas['id']
                                 ],
                                 'permission_callback' => '__return_true',
                             ]
                         ]
                     );
+
 
                     //add_interactions - Create new interactions/comments on an existing contact
                     register_rest_route(
@@ -152,16 +139,17 @@
                                 'methods'  => 'POST',
                                 'callback' => [ $this, 'add_interactions' ],
                                 'args' => [
-                                    'comment' => [
+                                   /* 'notes' => [
                                         'description' => 'The comment text',
                                         'type' => 'string',
                                         'required' => true,
                                         'validate_callback' => [ $this, 'prefix_validate_args' ]
-                                    ],
+                                    ],*/
                                     'post_type' => $arg_schemas['post_type'],
                                     'id' => $arg_schemas['id'],
                                     'date' => $arg_schemas['date'],
-                                    'comment_type' => $arg_schemas['comment_type']
+                                    'comment_type' => $arg_schemas['comment_type'],
+                                    //'notes' => $arg_schemas['comment']
                                 ],
                                 'permission_callback' => '__return_true',
                             ]
@@ -206,36 +194,38 @@
             return true;
         }
 
-        public function mapFieldsToContact ( $fields )
+        public function mapFieldsToContact ( $contact_map )
         {
-            dt_write_log("MapFieldsToContact");
 
-            dt_write_log($fields);
-
-            $contact_map = $fields;
             $fields_map = null;
-            
-            dt_write_log($contact_map);
-            //$fields_map;
 
+            $fields_map = array(
+                'title' => $contact_map['name'],
+                'type' => 'access',
+                'milestones' => [ ],
+                'maarifa_data' => $contact_map['id'],
+            );
 
-            if (!empty($contact_map['id'])) { 
-                $fields_map['maarifa_data'] = $contact_map['id'];
-            }
-            if (!empty($contact_map['name'])) {
-                $fields_map['name'] = $contact_map['name'];
-            }
+ 
             if (!empty($contact_map['email'])) { //VER DETALHES
-                $fields_map['contact_email'] = $contact_map['email'] ;
+          
+
+                $emails = $contact_map['email'];
+
+                $fields_map['contact_email'] = [ [ 'value' => $contact_map['email'] ] ];
+
             }
             if (!empty($contact_map['phone'])) { 
-//                $fields_map['contact_phone'] = $contact_map['phonecode'] . $contact_map['phone'];
-                $fields_map['contact_phone'] = $contact_map['phone'];
+
+                $fields_map['contact_phone'] = [ [ 'value' => $contact_map['phone'] ] ];
             }
             if (!empty($contact_map['facebook'])) {
-                $fields_map['contact_facebook'] = $contact_map['facebook'];
+                
+                $fields_map['contact_facebook'] = [ [ 'value' => $contact_map['facebook'] ] ];                
             }            
-        
+            if (!empty($contact_map['gender'])) {
+                $fields_map['gender'] = $contact_map['gender'];
+            }        
 
 
             //Location
@@ -261,10 +251,10 @@
                     case '<41':
                         $age = '25-34';
                         break;
-                    case '<41':
+                    case '<45':
                         $age = '35-44';
                         break;
-                    case '>41':
+                    case '>45':
                         $age = '45+';
                         break;
                 }
@@ -276,136 +266,93 @@
 
 
             if (!empty($contact_map['notes'])) {
-                //$fields_map['notes'] = $contact_map['notes'];
-
-                $note = null;
-
-                foreach ($contact_map['notes'] as $note) {     
-                    $contact_map['notes'][] = $note;
-                }
+                $fields_map['notes'] = $contact_map['notes'];
+                
             }
 
-            //if (!empty($contact_map['tags'])) { //VER DETALHES
-            //    $fields_map['tags'] = $contact_map['tags'];
-            //}
-            //if (!empty($contact_map['notes'])) { //VER DETALHES
-            //    $fields_map['notes'] = $contact_map['notes'];
-            //}            
+            if (!empty($contact_map['tags'])) 
+            { //VER DETALHES
 
-            //////////////////////
-       
-            if (!empty($contact_map['background'])) { 
-                $fields_map['background'] = $contact_map['background'];
-            }         
-            if (!empty($contact_map['spiritual'])) { 
-                $fields_map['spiritual'] = $contact_map['spiritual'];
-            } 
+                $fields_map['tags'] = $contact_map['tags'];
 
-            //Ignoring those fields
-            /*        
-            if (!empty($contact_map['created'])) { //VER DETALHES
-                $fields_map['created'] = $contact_map['created'];
-            }         
-            if (!empty($contact_map['last_updated'])) { //VER DETALHES
-                $fields_map['last_updated'] = $contact_map['last_updated'];
-            }         
-            if (!empty($contact_map['last_seen'])) { //VER DETALHES
-                $fields_map['last_seen'] = $contact_map['last_seen'];
-            }         
-            if (!empty($contact_map['first_contact'])) { //VER DETALHES
-                $fields_map['first_contact'] = $contact_map['first_contact'];
-            }                                                                                 
-            if (!empty($contact_map['first_contact_details'])) { //VER DETALHES
-                $fields_map['first_contact_details'] = $contact_map['first_contact_details'];
-            }                              
-            if (!empty($contact_map['first_source'])) { //VER DETALHES
-                $fields_map['first_source'] = $contact_map['first_contact'];
-            }                              
-            if (!empty($contact_map['ds_user_id'])) { //VER DETALHES
-                $fields_map['ds_user_id'] = $contact_map['ds_user_id'];
-            }                 
-            if (!empty($contact_map['external_id'])) { //VER DETALHES
-                $fields_map['external_id'] = $contact_map['external_id'];
-            }                 
-            if (!empty($contact_map['external_url'])) { //VER DETALHES
-                $fields_map['external_url'] = $contact_map['external_url'];
-            }                            
-            if (!empty($contact_map['location_details'])) { //VER DETALHES
-                $fields_map['location_details'] = $contact_map['location_details'];
-            }              
-*/
+            }
 
-            if (!empty($contact_map['milestone'])) { 
+            // Spiritual
+            if ($contact_map['spiritual'] === 'believer') {
+                $fields_map['milestones'][] = 'milestone_belief';
+            }
+
+            if (!empty($contact_map['milestones'])) { 
                 $milestone = '';           
 
-                foreach ($contact_map['milestone'] as $milestone) {                          
+                $milestones = array();
+
+
+                foreach ($contact_map['milestones'] as $key => $value) {            
+
+                    //$milestone = $value;
                 
-                    switch ($milestone) {
+                    switch ($key) {
 
-                        case 'believer':
+                        case 'has bible':
+                            //$fields_map['milestones']['milestone_has_bible'] = $milestone;
+                            //$fields_map['milestones']['milestone_has_bible'] = $milestone;
+                            //$fields_map['milestones']['milestone_has_bible'] =  $milestone ;
+                            //$milestones['milestone_has_bible'] =  $milestone ;
+                            $milestones["value"][] = "milestone_has_bible"; 
+                            
+                            break;    
+                        case 'studying':
+                            //$fields_map['milestones']['milestone_reading_bible'] = $milestone;
+                            
+                            //$milestones['milestone_reading_bible'] =  $milestone ;
+                            $milestones["value"][] = "milestone_reading_bible";
+                            break;      
+          /*
                         case 'profession':
-                            $fields_map['milestones'][] = 'milestone_belief';
-                            break;
-                        case 'began study':
-                            $fields_map['milestones'][] = 'milestone_reading_bible';
-                            break;
-                        case 'joined group':
-                            $fields_map['milestones'][] = 'milestone_in_group';
-                            break;
-                        case 'left group':
-                            // if milestone_in_group is already set, that means there was
-                            // a more recent interaction for them joining a group, so this
-                            // was from leaving a previous group but later joining another (or the same one again)
-                            $key = array_search('milestone_in_group', $fields_map['milestones']);
-                            if ($key !== false) {
-                                array_splice($fields_map['milestones'], $key, 1);
-                            }
-                            break;
-                        case 'started group':
-                            $fields_map['milestones'][] = 'milestone_planting';
-                            break;
+                            $fields_map['milestones']['milestone_belief'] =  $milestone;
+                            break;                                                   
+                        case 'can share':
+                            $fields_map['milestones']['milestone_can_share'] =  $milestone;
+                            break;   
+                        case 'sharing':
+                            $fields_map['milestones']['milestone_sharing'] =  $milestone;
+                            break;                                                                                                           
+                        case 'baptizing':
+                            $fields_map['milestones']['milestone_baptizing'] =  $milestone;
+                            break;                                                           
+                        case 'in group':
+                            $fields_map['milestones']['milestone_in_group'] = $milestone;
+                            break; 
+                        case 'starting groups':
+                            $fields_map['milestones']['milestone_planting'] = $milestone;
+                            break;                                            
                         case 'baptized':
-                            $fields_map['milestones'][] = 'milestone_baptized';
-                            $fields_map['baptism_date'] = date("Y-m-d", $interaction->when_made);
-                            break;
-
-                        /*
-                        case 'milestone_has_bible':
-                            // has bible...
-                            break;
-                        case 'milestone_reading_bible':
-                            // studying...
-                            break;   
-                        case 'milestone_belief':
-                            // profession...
-                            break;   
-                        case 'milestone_can_share':
-                            // can share...
-                            break;   
-                        case 'milestone_sharing':
-                            // sharing...
-                            break;   
-                        case 'milestone_baptized':
-                            // baptized...
-                            break;   
-                        case 'milestone_baptizing ':
-                            // baptizing...
-                            break;
-                        case 'milestone_in_group ':
-                            // in group...
-                                break;                                                                                                               
-                        case 'milestone_planting ':
-                            // starting groups...
-                            break;     
-                        default:
-                            // code...
-                            break;
+                            $fields_map['milestones']['milestone_baptized'] =  $milestone;
+                           // $fields_map['baptism_date'] = date("Y-m-d", $interaction->when_made);
+                            break;    
                             */
                     }
+                    
                 }
-            }
 
-            dt_write_log('Fields_map');
+                dt_write_log('$milestones');
+                dt_write_log($milestones);
+
+
+                $fields_map['milestones'] = [
+                  //"milestones" => [
+                    "values" => [
+                      [ "value" => "milestone_has_bible" ],  
+                      [ "value" => "milestone_planting"] 
+                    ]                    
+                  ];
+               // ];
+
+            }            
+    
+
+            dt_write_log('Fields_map VER MILESTONES');
             dt_write_log($fields_map);
 
             return $fields_map;
@@ -418,91 +365,136 @@
 
         public function contacts( WP_REST_Request $request ) {
                     
-                    dt_write_log("Contacts");
-                                     
-                    $fields     = $request->get_json_params() ?? $request->get_body_params();
+            dt_write_log("Contacts");
+                                 
+            $fields     = $request->get_json_params() ?? $request->get_body_params();
 
-                    dt_write_log("fields antes");
+            dt_write_log("Fields before");
 
-                    dt_write_log($fields);
+            dt_write_log($fields);
 
-                    //Converts Maarifa field names to DT field names
-                    $fields2 = $this->mapFieldsToContact($fields);
+            //Converts Maarifa field names to DT field names            
+            $fields2 = $this->mapFieldsToContact($fields);
 
-                    $fields = $fields2;
-
-                    dt_write_log("fields depois");
-                    dt_write_log($this->mapFieldsToContact($fields));
+            //dt_write_log("Fields2 after");
+            //dt_write_log( $fields2);
 
 
-                    $url_params = $request->get_url_params();
-                    $get_params = $request->get_query_params();
-                    $silent     = isset( $get_params['silent'] ) && $get_params['silent'] === 'true';
+            $url_params = $request->get_url_params();
+            $get_params = $request->get_query_params();
+            $silent     = isset( $get_params['silent'] ) && $get_params['silent'] === 'true';
 
-//                    $check_dups = ! empty( $get_params['check_for_duplicates'] ) ? explode( ',', $get_params['check_for_duplicates'] ) : [];
-                    $check_dups = true;
-
-
-                $maarifa_contact_id = null;
-
-                if ( isset( $fields['maarifa_data'] ) ){
+//                    $check_dups = ! empty( $get_params['check_for_duplicates'] ) ? explode( ',', $get_params['check_for_duplicates'] ) : 
+            $check_dups = true;
 
 
-                    $maarifa_contact_id = $fields['maarifa_data'];
+            $maarifa_contact_id = null;
 
+            //dt_write_log("fields2[maarifa_data]");
+            //dt_write_log($fields2['maarifa_data']);
+
+            //if ( $fields2['maarifa_data']  && $fields2['maarifa_data'] != null)
+
+            if( isset( $fields2['maarifa_data'] ))
+            {
+
+                dt_write_log("ENTROU NO IF");
+
+                $maarifa_contact_id = $fields2['maarifa_data'];
+
+                dt_write_log("maarifa_contact_id");
+                dt_write_log($maarifa_contact_id);
+
+                if ( $maarifa_contact_id ) {
                     //Verify if maarifa_data already exists
                     $return_maarifa = $this->check_field_value_exists( $request , $maarifa_contact_id );
 
+                    dt_write_log("return_maarifa");
+                    dt_write_log($return_maarifa);
+                }
+
+
                     
-                    //$obj_return = $return_maarifa().get_class(object:object);
+                //$obj_return = $return_maarifa().get_class(object:object);
 
 
-                    if ( isset( $return_maarifa ) && ! $return_maarifa ==  0 )
-                    {//Contact already exits in Maarifa
+                if ( isset( $return_maarifa ) && ! $return_maarifa ==  0 )
+                {//Contact already exits in Maarifa
 
 
-                        //Update the contact
-                        $post_id_return = $return_maarifa[0]->post_id;
+                    //Update the contact
+                    $post_id_return = $return_maarifa[0]->post_id;
 
-                        $this->update_post( $request , $post_id_return);
+                    $this->update_maarifa_contact( $request , $post_id_return, $fields2);
 
-                    }
-                    else //Contact is new
-                    {
-                        dt_write_log("Contact is new");
+                }
+                else //Contact is new
+                {
+                    dt_write_log("Contact is new");
+                    //dt_write_log($fields2);
                         
-                        $post       = DT_Posts::create_post( 'contacts', $fields, $silent, true, [
-                            'check_for_duplicates' => $check_dups,
+                    $post       = DT_Posts::create_post( 'contacts', $fields2, $silent, true, [
+                        'check_for_duplicates' => $check_dups,
                       
                     ] );                             
                 
                     return $post;
-                    };                         
+                }                         
+            }
 
-                }
+            return NULL;
+        }
 
-                    //return null;
-            }    
 
-            public function update_post( WP_REST_Request $request, int $p_post_id ){
+        public function update_post( WP_REST_Request $request ){
 
-                dt_write_log("Update_post");
+            $url_params = $request->get_url_params();
+            $id_upd = $url_params['id'];
 
-                $fields = $request->get_json_params() ?? $request->get_body_params();
+            $fields_orig     = $request->get_json_params() ?? $request->get_body_params();
+            dt_write_log("Fields before mapping");
+            dt_write_log($fields_orig);
+
+            //Converts Maarifa field names to DT field names            
+            $fields3 = $this->mapFieldsToContact($fields_orig);
+            
+
+            $this->update_maarifa_contact( $request , $id_upd, $fields3);
+        }
+
+
+        public function update_maarifa_contact( WP_REST_Request $request, int $p_post_id, $fields2 ){
+            
+
+                dt_write_log("Update_maarifa_contact");
+
+                //$fields = $request->get_json_params() ?? $request->get_body_params();
+
+                //dt_write_log("fields");
+                //dt_write_log($fields);
+
+                //dt_write_log("fields2");
+                //dt_write_log($fields2);
+
+                dt_write_log("p_post_id");
+                dt_write_log("$p_post_id");
 
                 if( isset( $p_post_id))
                 {
+
                     $post_id = $p_post_id;
                 }
                 else
                 {
                     $post_id = $url_params['id'];
                 }
+
                 $url_params = $request->get_url_params();
                 $get_params = $request->get_query_params();
                 $silent = isset( $get_params['silent'] ) && $get_params['silent'] === 'true';
+                dt_write_log("Before update_post");
                 
-                return DT_Posts::update_post( $url_params['post_type'], $post_id, $fields, $silent );
+                return DT_Posts::update_post( $url_params['post_type'], $post_id, $fields2, $silent );
             }            
 
 
@@ -521,14 +513,17 @@
                 }
                 */
 //                if ( isset( $params['post_type'] ) && isset( $params['communication_channel'] ) && isset( $params['maarifa_data'] ) ) {
-                if ( isset( $params['maarifa_data'] ) ) {
-
+               // if ( isset( $params['maarifa_data'] ) ) {
+                if ( $maarifa_contact_id != null ) {
+                    
                     global $wpdb;
                     $result = $wpdb->get_results( $wpdb->prepare(
                         "SELECT `post_id`
                             FROM $wpdb->postmeta
                             WHERE meta_key LIKE 'maarifa_data'
-                            AND meta_value = %s;", $params['maarifa_data'] ) );
+                            AND meta_value = %s;", $maarifa_contact_id ) );
+
+                    //AND meta_value = %s;", $params['maarifa_data'] ) );
 
                     
                     return $result;
@@ -540,49 +535,88 @@
             
             public function add_interactions( WP_REST_Request $request ){
 
-                dt_write_log("Add_interactions");
+                dt_write_log("Add_interactions");            
 
                 $url_params = $request->get_url_params();
                 $get_params = $request->get_query_params();
                 $body = $request->get_json_params() ?? $request->get_body_params();
                 $silent = isset( $get_params['silent'] ) && $get_params['silent'] === 'true';
                 $args = [];
-                if ( isset( $body['date'] ) ){
-                    $args['comment_date'] = $body['date'];
-                }
-                if ( isset( $body['meta'] ) ) {
-                    $args['comment_meta'] = $body['meta'];
-                }
-                $type = 'comment';
-                if ( isset( $body['comment_type'] ) ){
-                    $type = $body['comment_type'];
-                }
 
-                if (isset($body['comment_ID']))
-                {//If comment_id exists, update the comment
-                    dt_write_log("Add_interactions UPDATE");
-
-                    $result = DT_Posts::update_post_comment( $body['comment_ID'], $body['comment'], true, $type, $args );
-                } 
-                else
-                {//If doesn't, create a new comment
-                    dt_write_log("Add_interactions CREATE");
-
-                    $result = DT_Posts::add_post_comment( $url_params['post_type'], $url_params['id'], $body['comment'], $type, $args, true, $silent );
-                }
-
+                $type = 'maarifa';
                 
-                if ( is_wp_error( $result ) ) {
-                    return $result;
-                } else {
-                    $ret = get_comment( $result )->to_array();
-                    unset( $ret['children'] );
-                    unset( $ret['populated_children'] );
-                    unset( $ret['post_fields'] );
-                    $ret['comment_meta'] = get_comment_meta( $ret['comment_ID'] );
-                    return $ret;
+                if (!empty($body)) { 
+                    //$milestone = '';           
+
+                    //$milestones = array();
+
+
+                    dt_write_log("body[]");
+                    dt_write_log($body);
+                    $value = null;
+                    $result = null;
+                    $ret = null;
+
+                    foreach ($body as $key => $value) {            
+
+                        dt_write_log("value['notes']");
+                        dt_write_log($value);
+
+                        if ( isset( $value['when_made'] ) ){
+                            $args['comment_date'] = $value['when_made'];
+                        }
+                        
+                        if ( isset( $value['responder_name'] ) ){
+                            $args['user_id'] = $value['responder_name'];
+                        }                
+
+                        if ( isset( $value['notes'] ) ){
+
+                            $comment = "Type: ". $type ."\n". "Responder name: ". $value['responder_name']. "\n" .$value['notes'];
+
+                            dt_write_log("value[notes]");
+                            dt_write_log($value['notes']);
+                        }               
+
+                        if ( isset( $value['meta'] ) ) {
+                            $args['comment_meta'] = $value['meta'];
+                        }
+
+                        if (isset($value['id']))
+                        {//If comment_id exists, update the comment
+
+                            $id = $value['id'];
+
+                            dt_write_log("Add_interactions UPDATE");
+                            dt_write_log("type");
+                            dt_write_log($type);
+
+                            $result = DT_Posts::update_post_comment( $id, $comment, true, $type, $args );
+                        } 
+                        else
+                        {//If doesn't, create a new comment
+                            dt_write_log("Add_interactions CREATE");
+
+                            $result = DT_Posts::add_post_comment( $url_params['post_type'], $url_params['id'], $comment, $type, $args, true, $silent );
+                        }                       
+                                            
+                    }
+
+                    if ( is_wp_error( $result ) ) {
+                        return $result;
+                    } else {
+                                
+                        $ret = get_comment( $result )->to_array();
+                        unset( $ret['children'] );
+                        unset( $ret['populated_children'] );
+                        unset( $ret['post_fields'] );
+                        $ret['comment_meta'] = get_comment_meta( $ret['comment_ID'] );
+                        return $ret;
+                    }                       
+
                 }
-            }
+         
+            }      
 
         }
 
