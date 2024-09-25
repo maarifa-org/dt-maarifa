@@ -92,28 +92,7 @@
                             'permission_callback' => '__return_true',
                             ]
                         ]
-                     );                     
-
-
-/* Verify if I need that code
-                    //create_post - Update contact with Maarifa id
-                    register_rest_route(
-
-                        $this->namespace, '/(?P<post_type>\w+)/(?P<maarifa_data>\d+/maarifa)',  [
-                            
-                            [
-                            'methods'  => 'POST',
-                            'callback' => [ $this, 'contacts' ],
-                            'args' => [
-                                'post_type' => $arg_schemas['post_type'],
-                                'maarifa_data' => $arg_schemas['maarifa_data'],
-                                'check_for_duplicates' => true
-                                ],
-                            'permission_callback' => '__return_true',
-                            ]
-                        ]
-                     );   
-*/                     
+                     );                                     
 
 
                     //update_post - Update contact by given DT contact ID
@@ -138,18 +117,11 @@
                             [
                                 'methods'  => 'POST',
                                 'callback' => [ $this, 'add_interactions' ],
-                                'args' => [
-                                   /* 'notes' => [
-                                        'description' => 'The comment text',
-                                        'type' => 'string',
-                                        'required' => true,
-                                        'validate_callback' => [ $this, 'prefix_validate_args' ]
-                                    ],*/
+                                'args' => [                                
                                     'post_type' => $arg_schemas['post_type'],
                                     'id' => $arg_schemas['id'],
                                     'date' => $arg_schemas['date'],
-                                    'comment_type' => $arg_schemas['comment_type'],
-                                    //'notes' => $arg_schemas['comment']
+                                    'comment_type' => $arg_schemas['comment_type'],                                
                                 ],
                                 'permission_callback' => '__return_true',
                             ]
@@ -207,39 +179,45 @@
             );
 
  
-            if (!empty($contact_map['email'])) { //VER DETALHES
-          
+            if (!empty($contact_map['email'])) { //VER DETALHES          
 
                 $emails = $contact_map['email'];
 
                 $fields_map['contact_email'] = [ [ 'value' => $contact_map['email'] ] ];
 
             }
+
             if (!empty($contact_map['phone'])) { 
 
                 $fields_map['contact_phone'] = [ [ 'value' => $contact_map['phone'] ] ];
             }
+
             if (!empty($contact_map['facebook'])) {
                 
                 $fields_map['contact_facebook'] = [ [ 'value' => $contact_map['facebook'] ] ];                
-            }            
+            }  
+
             if (!empty($contact_map['gender'])) {
+
                 $fields_map['gender'] = $contact_map['gender'];
             }        
 
 
             //Location
-            if (!empty($contact_map['street'])) { //VER DETALHES
+            if (!empty($contact_map['street'])) { //TO DO
+
                 $fields_map['contact_address'] = $contact_map['street'];
-            }                        
-            if (!empty($contact_map['country'])) { //VER DETALHES
-                //$fields_map['country'] = $this->getLocations();
-                //$fields_map['location_grid_meta'] = $contact_map['country'];
+            }   
+
+            if (!empty($contact_map['country'])) { //TO DO
+
+               // $fields_map['country'] = $result = DT_Posts::getLocations();
+               //$fields_map['country'] = $contact_map['country'];
             }            
             
-
             // Age
             if (!empty($contact_map['age'])) { 
+
                 $age = '';
                 switch ($contact_map['age']) {
                     case '<19':
@@ -260,99 +238,159 @@
                 }
 
                 if (!empty($age)) {
+
                     $fields_map['age'] = $age;
                 }
             }
 
 
             if (!empty($contact_map['notes'])) {
+
                 $fields_map['notes'] = $contact_map['notes'];
                 
             }
 
             if (!empty($contact_map['tags'])) 
-            { //VER DETALHES
+            {
+                
+                $intCount0 = 0;
 
-                $fields_map['tags'] = $contact_map['tags'];
+                foreach ($contact_map['tags'] as $key => $value) { 
+
+                    $fields_map['tags']['values'][$intCount0]['value'] = $contact_map['tags'][$key]['alias']; 
+
+                    $intCount0++;
+
+                }
 
             }
 
             // Spiritual
             if ($contact_map['spiritual'] === 'believer') {
+
                 $fields_map['milestones'][] = 'milestone_belief';
             }
 
-            if (!empty($contact_map['milestones'])) { 
-                $milestone = '';           
+            if (!empty($contact_map['milestones'])) {   
 
-                $milestones = array();
+                $intCount = 0;
 
-
-                foreach ($contact_map['milestones'] as $key => $value) {            
-
-                    //$milestone = $value;
+                foreach ($contact_map['milestones'] as $key => $value) {    
                 
-                    switch ($key) {
+                    if($value == 1)
+                    {
+                        switch ($key) {
 
-                        case 'has bible':
-                            //$fields_map['milestones']['milestone_has_bible'] = $milestone;
-                            //$fields_map['milestones']['milestone_has_bible'] = $milestone;
-                            //$fields_map['milestones']['milestone_has_bible'] =  $milestone ;
-                            //$milestones['milestone_has_bible'] =  $milestone ;
-                            $milestones["value"][] = "milestone_has_bible"; 
+                            case 'has bible': 
+
+                                $fields_map['milestones']['values'][$intCount]['value'] = "milestone_has_bible"; 
+                                $intCount++;  
+                     
+                                break;    
+
+                            case 'studying':
+                                
+                                $fields_map['milestones']['values'][$intCount]['value'] = "milestone_reading_bible"; 
+                                $intCount++;  
+
+                                break;      
+              
+                            case 'profession':
+
+                                $fields_map['milestones']['values'][$intCount]['value'] = "milestone_belief";  
+                                $intCount++;  
                             
-                            break;    
-                        case 'studying':
-                            //$fields_map['milestones']['milestone_reading_bible'] = $milestone;
+                                break;                                       
+
+                            case 'can share':
+
+                                $fields_map['milestones']['values'][$intCount]['value'] = "milestone_can_share";  
+                                $intCount++;  
                             
-                            //$milestones['milestone_reading_bible'] =  $milestone ;
-                            $milestones["value"][] = "milestone_reading_bible";
-                            break;      
-          /*
-                        case 'profession':
-                            $fields_map['milestones']['milestone_belief'] =  $milestone;
-                            break;                                                   
-                        case 'can share':
-                            $fields_map['milestones']['milestone_can_share'] =  $milestone;
-                            break;   
-                        case 'sharing':
-                            $fields_map['milestones']['milestone_sharing'] =  $milestone;
-                            break;                                                                                                           
-                        case 'baptizing':
-                            $fields_map['milestones']['milestone_baptizing'] =  $milestone;
-                            break;                                                           
-                        case 'in group':
-                            $fields_map['milestones']['milestone_in_group'] = $milestone;
-                            break; 
-                        case 'starting groups':
-                            $fields_map['milestones']['milestone_planting'] = $milestone;
-                            break;                                            
-                        case 'baptized':
-                            $fields_map['milestones']['milestone_baptized'] =  $milestone;
-                           // $fields_map['baptism_date'] = date("Y-m-d", $interaction->when_made);
-                            break;    
-                            */
+                                break;   
+
+                            
+                            case 'baptized':
+
+                                $fields_map['milestones']['values'][$intCount]['value'] = "milestone_baptized"; 
+                                $intCount++;  
+                                            
+                                break;                         
+
+                            case 'has bible':
+
+                                $fields_map['milestones']['values'][$intCount]['value'] = "milestone_has_bible";  
+                                $intCount++;  
+                            
+                                break;    
+
+                            case 'studying':                                
+
+                                $fields_map['milestones']['values'][$intCount]['value'] = "milestone_reading_bible";    
+                                $intCount++;  
+
+                                break;      
+              
+                            case 'profession':
+
+                                $fields_map['milestones']['values'][$intCount]['value'] = "milestone_belief"; 
+                                $intCount++;  
+                
+                                break;                                       
+
+                            case 'can share':
+
+                                $fields_map['milestones']['values'][$intCount]['value'] = "milestone_can_share";     
+                                $intCount++;  
+                         
+                                break;   
+
+                            case 'sharing':
+
+                                $fields_map['milestones']['values'][$intCount]['value'] = "milestone_sharing";      
+                                $intCount++;  
+                          
+                                break;                                        
+
+                            case 'baptizing':
+
+                                $fields_map['milestones']['values'][$intCount]['value'] = "milestone_baptizing";   
+                                $intCount++;  
+                           
+                                break;                                          
+
+                            case 'in group':
+
+                                $fields_map['milestones']['values'][$intCount]['value'] = "milestone_in_group";   
+                                $intCount++;  
+                           
+                                break; 
+
+                            case 'starting groups':
+
+                                $fields_map['milestones']['values'][$intCount]['value'] = "milestone_planting";   
+                                $intCount++;  
+                          
+                                break;                                         
+
+                            case 'baptized':
+
+                                $fields_map['milestones']['values'][$intCount]['value'] = "milestone_baptized";   
+                                $intCount++;  
+                                                                            
+                                break; 
+                            
+                                                          
+                            }
+                                             
+                        }
+                                         
                     }
-                    
-                }
-
-                dt_write_log('$milestones');
-                dt_write_log($milestones);
-
-
-                $fields_map['milestones'] = [
-                  //"milestones" => [
-                    "values" => [
-                      [ "value" => "milestone_has_bible" ],  
-                      [ "value" => "milestone_planting"] 
-                    ]                    
-                  ];
-               // ];
-
+                                            
             }            
     
 
-            dt_write_log('Fields_map VER MILESTONES');
+            dt_write_log('Fields_map MILESTONES');
             dt_write_log($fields_map);
 
             return $fields_map;
@@ -369,53 +407,33 @@
                                  
             $fields     = $request->get_json_params() ?? $request->get_body_params();
 
-            dt_write_log("Fields before");
-
-            dt_write_log($fields);
-
             //Converts Maarifa field names to DT field names            
             $fields2 = $this->mapFieldsToContact($fields);
 
-            //dt_write_log("Fields2 after");
-            //dt_write_log( $fields2);
-
+            dt_write_log($fields2);            
 
             $url_params = $request->get_url_params();
             $get_params = $request->get_query_params();
             $silent     = isset( $get_params['silent'] ) && $get_params['silent'] === 'true';
 
 //                    $check_dups = ! empty( $get_params['check_for_duplicates'] ) ? explode( ',', $get_params['check_for_duplicates'] ) : 
-            $check_dups = true;
+            $check_dups = true; //TO DO
 
 
             $maarifa_contact_id = null;
-
-            //dt_write_log("fields2[maarifa_data]");
-            //dt_write_log($fields2['maarifa_data']);
-
-            //if ( $fields2['maarifa_data']  && $fields2['maarifa_data'] != null)
-
+        
             if( isset( $fields2['maarifa_data'] ))
             {
 
-                dt_write_log("ENTROU NO IF");
-
                 $maarifa_contact_id = $fields2['maarifa_data'];
 
-                dt_write_log("maarifa_contact_id");
-                dt_write_log($maarifa_contact_id);
 
                 if ( $maarifa_contact_id ) {
+
                     //Verify if maarifa_data already exists
                     $return_maarifa = $this->check_field_value_exists( $request , $maarifa_contact_id );
 
-                    dt_write_log("return_maarifa");
-                    dt_write_log($return_maarifa);
                 }
-
-
-                    
-                //$obj_return = $return_maarifa().get_class(object:object);
 
 
                 if ( isset( $return_maarifa ) && ! $return_maarifa ==  0 )
@@ -430,8 +448,6 @@
                 }
                 else //Contact is new
                 {
-                    dt_write_log("Contact is new");
-                    //dt_write_log($fields2);
                         
                     $post       = DT_Posts::create_post( 'contacts', $fields2, $silent, true, [
                         'check_for_duplicates' => $check_dups,
@@ -452,8 +468,6 @@
             $id_upd = $url_params['id'];
 
             $fields_orig     = $request->get_json_params() ?? $request->get_body_params();
-            dt_write_log("Fields before mapping");
-            dt_write_log($fields_orig);
 
             //Converts Maarifa field names to DT field names            
             $fields3 = $this->mapFieldsToContact($fields_orig);
@@ -466,18 +480,7 @@
         public function update_maarifa_contact( WP_REST_Request $request, int $p_post_id, $fields2 ){
             
 
-                dt_write_log("Update_maarifa_contact");
-
-                //$fields = $request->get_json_params() ?? $request->get_body_params();
-
-                //dt_write_log("fields");
-                //dt_write_log($fields);
-
-                //dt_write_log("fields2");
-                //dt_write_log($fields2);
-
-                dt_write_log("p_post_id");
-                dt_write_log("$p_post_id");
+                dt_write_log("Update_maarifa_contact");            
 
                 if( isset( $p_post_id))
                 {
@@ -492,7 +495,6 @@
                 $url_params = $request->get_url_params();
                 $get_params = $request->get_query_params();
                 $silent = isset( $get_params['silent'] ) && $get_params['silent'] === 'true';
-                dt_write_log("Before update_post");
                 
                 return DT_Posts::update_post( $url_params['post_type'], $post_id, $fields2, $silent );
             }            
@@ -501,19 +503,10 @@
             public function check_field_value_exists( WP_REST_Request $request, string $maarifa_contact_id) {
             //Verify if maarifa_data already exists
                 
-
-                $params = $request->get_params();
-
                 dt_write_log("Check_field_value_exists");
 
-                /*
-                $communication_channels = DT_Posts::get_field_settings_by_type( $params['post_type'], 'communication_channel' );
-                if ( in_array( $params['post_type'], $communication_channels ) ) {
-                    return new WP_Error( __METHOD__, 'Invalid communication_channel' );
-                }
-                */
-//                if ( isset( $params['post_type'] ) && isset( $params['communication_channel'] ) && isset( $params['maarifa_data'] ) ) {
-               // if ( isset( $params['maarifa_data'] ) ) {
+                $params = $request->get_params();
+                
                 if ( $maarifa_contact_id != null ) {
                     
                     global $wpdb;
@@ -522,8 +515,6 @@
                             FROM $wpdb->postmeta
                             WHERE meta_key LIKE 'maarifa_data'
                             AND meta_value = %s;", $maarifa_contact_id ) );
-
-                    //AND meta_value = %s;", $params['maarifa_data'] ) );
 
                     
                     return $result;
@@ -546,21 +537,13 @@
                 $type = 'maarifa';
                 
                 if (!empty($body)) { 
-                    //$milestone = '';           
-
-                    //$milestones = array();
-
-
-                    dt_write_log("body[]");
-                    dt_write_log($body);
+                    
                     $value = null;
                     $result = null;
                     $ret = null;
 
                     foreach ($body as $key => $value) {            
 
-                        dt_write_log("value['notes']");
-                        dt_write_log($value);
 
                         if ( isset( $value['when_made'] ) ){
                             $args['comment_date'] = $value['when_made'];
@@ -574,8 +557,6 @@
 
                             $comment = "Type: ". $type ."\n". "Responder name: ". $value['responder_name']. "\n" .$value['notes'];
 
-                            dt_write_log("value[notes]");
-                            dt_write_log($value['notes']);
                         }               
 
                         if ( isset( $value['meta'] ) ) {
@@ -586,10 +567,6 @@
                         {//If comment_id exists, update the comment
 
                             $id = $value['id'];
-
-                            dt_write_log("Add_interactions UPDATE");
-                            dt_write_log("type");
-                            dt_write_log($type);
 
                             $result = DT_Posts::update_post_comment( $id, $comment, true, $type, $args );
                         } 
@@ -603,8 +580,10 @@
                     }
 
                     if ( is_wp_error( $result ) ) {
+
                         return $result;
-                    } else {
+                    } 
+                    else {
                                 
                         $ret = get_comment( $result )->to_array();
                         unset( $ret['children'] );
