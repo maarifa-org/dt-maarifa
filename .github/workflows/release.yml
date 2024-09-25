@@ -11,37 +11,28 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
 
     # Add a test script to composer.json, for instance: "test": "vendor/bin/phpunit"
     # Docs: https://getcomposer.org/doc/articles/scripts.md
 
     # - name: Run test suite
     #   run: composer run-script test
-      
+
     # Below borrowed from https://github.com/actions/upload-release-asset
     - name: Build project
       run: |
         mkdir dt-maarifa
-        cp -r disciple-tools-maarifa.php LICENSE admin hooks post-type site-link tile languages dt-maarifa/
+        cp -r disciple-tools-maarifa.php admin hooks post-type site-link tile languages version-control.json LICENSE dt-maarifa/
         zip -r dt-maarifa.zip dt-maarifa
     - name: Create Release
       id: create_release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      uses: softprops/action-gh-release@v2
       with:
+        token: "${{ secrets.GITHUB_TOKEN }}"
         tag_name: ${{ github.ref }}
-        release_name: Release ${{ github.ref }}
+        name: Release ${{ github.ref_name }}
         draft: false
         prerelease: false
-    - name: Upload Release Asset
-      id: upload-release-asset 
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
-        asset_path: ./dt-maarifa.zip
-        asset_name: dt-maarifa.zip
-        asset_content_type: application/zip
+        files: ./dt-maarifa.zip
+        generate_release_notes: true
