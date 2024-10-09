@@ -175,21 +175,39 @@
                 'title' => $contact_map['name'],
                 'type' => 'access',
                 'milestones' => [ ],
-                'maarifa_data' => $contact_map['id'],
+                'maarifa_data' => $contact_map['id'],                
+
             );
 
- 
-            if (!empty($contact_map['email'])) { //VER DETALHES          
+            $fields_map['sources']['values'][0]['value'] = 'Maarifa'; 
 
-                $emails = $contact_map['email'];
+            $fields_map['maarifa_data'] = $contact_map;
 
-                $fields_map['contact_email'] = [ [ 'value' => $contact_map['email'] ] ];
+
+            if (!empty($contact_map['email'])) {        
+
+                $str_arr = preg_split("/\,/", $contact_map['email']);    
+
+
+                for ($i = 0; $i < count($str_arr); $i++) 
+                {
+                    $fields_map['contact_email']['values'][$i]['value'] = trim(trim(trim($str_arr[$i], '['), ']'), '"');
+
+                }                                        
 
             }
 
             if (!empty($contact_map['phone'])) { 
 
-                $fields_map['contact_phone'] = [ [ 'value' => $contact_map['phone'] ] ];
+                //$fields_map['contact_phone'] = [ [ 'value' => $contact_map['phone'] ] ];
+
+               $str_arr = preg_split("/\,/", $contact_map['phone']);    
+
+
+                for ($i = 0; $i < count($str_arr); $i++) 
+                {
+                    $fields_map['contact_phone']['values'][$i]['value'] = trim(trim(trim($str_arr[$i], '['), ']'), '"');
+                }                 
             }
 
             if (!empty($contact_map['facebook'])) {
@@ -209,44 +227,78 @@
                 $fields_map['contact_address'] = $contact_map['street'];
             }   
 
+            
+            // Country --> Locations
             if (!empty($contact_map['country'])) { //TO DO
 
                // $fields_map['country'] = $result = DT_Posts::getLocations();
                //$fields_map['country'] = $contact_map['country'];
+
+                $locations = $this->getLocations();
+                    
+                // find existing location with the same name as the contact country
+                $locationMatch = null;
+                foreach ($locations as $location) {
+                    if (strcasecmp($location->name, $contact->country) == 0) {
+                        $locationMatch = $location;
+                        break;
+                    }
+                }
+
+                // if we found an existing location, set it
+                if (!empty($locationMatch)) {
+                    //Log::add('Found location match (' . $contact->country . '): ' . json_encode($location), Log::DEBUG, $this->LogCATEGORY);
+                    // todo: if updating contact, make sure we don't duplicate
+                    $fields['location_grid'] = [
+                        'values' => [ [
+                            'value' => $locationMatch->ID
+                        ]]
+                    ];
+                } else {
+                    //Log::add('No existing location found: ' . $contact->country, Log::DEBUG, $this->LogCATEGORY);
+                }                   
+
             }            
             
             // Age
             if (!empty($contact_map['age'])) { 
 
                 $age = '';
+
                 switch ($contact_map['age']) {
-                    case '<19':
-                        $age = '0-17';
+                    case '0-17':
+                        $age = '<19';
+                        $fields_map['age'] = ["<19" => "active"];
                         break;
-                    case '<26':
-                        $age = '18-24';
+                    case '18-24':
+                        $age = '<26';
+                        $fields_map['age'] = ["<26" => "active"];                        
                         break;
-                    case '<41':
-                        $age = '25-34';
+                    case '25-34':
+                        $age = '<41';
+                        $fields_map['age'] = ["<41" => "active"];                         
                         break;
-                    case '<45':
-                        $age = '35-44';
+                    case '35-44':
+                        $age = '<41';
+                        $fields_map['age'] = ["<41" => "active"];                             
                         break;
-                    case '>45':
-                        $age = '45+';
+                    case '45+':
+                        $age = '>41';
+                        $fields_map['age'] = [">41" => "active"];                                                     
                         break;
-                }
+                }                
 
                 if (!empty($age)) {
 
                     $fields_map['age'] = $age;
+
                 }
             }
 
 
             if (!empty($contact_map['notes'])) {
 
-                $fields_map['notes'] = $contact_map['notes'];
+                $fields_map['notes'][] = $contact_map['notes'];
                 
             }
 
@@ -387,7 +439,11 @@
                                          
                     }
                                             
-            }            
+            }
+            else //No milestones
+            {
+                $fields_map['milestones']['values'][1]['value'] = 0;
+            }           
     
 
             dt_write_log('Fields_map MILESTONES');
@@ -425,7 +481,7 @@
             if( isset( $fields2['maarifa_data'] ))
             {
 
-                $maarifa_contact_id = $fields2['maarifa_data'];
+                $maarifa_contact_id = $fields2['maarifa_data']['default']['id'];
 
 
                 if ( $maarifa_contact_id ) {
@@ -597,9 +653,68 @@
          
             }      
 
+            public function add_user_location( WP_REST_Request $request ) {
+
+                $params = $request->get_params();
+
+                if ( isset( $params['user_location']['location_grid_meta'] ) ) {
+
+                    $user_id = get_current_user_id();
+                    if ( isset( $params['user_id'] ) && !empty( $params['user_id'] ) ){
+                        $user_id = (int) sanitize_text_field( wp_unslash( $params['user_id'] ) );
+                    }
+                    if ( !Disciple_Tools_Users::can_update( $user_id ) ){
+                        return new WP_Error( __METHOD__, 'No permission to edit this user', [ 'status' => 400 ] );
+                    }
+
+                    $new_location_grid_meta = [];
+                    foreach ( $params['user_location']['location_grid_meta'] as $grid_meta ) {
+                        $new_location_grid_meta[] = Disciple_Tools_Users::add_user_location_meta( $grid_meta, $user_id );
+                    }
+
+                    if ( ! empty( $new_location_grid_meta ) ) {
+                        return [
+                            'user_id' => $user_id,
+                            'user_title' => dt_get_user_display_name( $user_id ),
+                            'user_location' => Disciple_Tools_Users::get_user_location( $user_id )
+                        ];
+                    }
+                    return new WP_Error( __METHOD__, 'Failed to create user location' );
+                }
+
+                // typeahead add
+                else if ( isset( $params['grid_id'] ) ){
+                    return Disciple_Tools_Users::add_user_location( $params['grid_id'] );
+                }
+
+                // parameter fail
+                else {
+                    return new WP_Error( 'missing_error', 'Missing fields', [ 'status' => 400 ] );
+                }
+            }
+
+
+        public function getLocations() {
+            if (empty($this->locations)) {
+                $locations = $this->getRequest('wp-json/dt/v1/mapping_module/search_location_grid_by_name?filter=focus');
+
+                if ($locations['success'] && !empty($locations['response']) && $locations['response']->total > 0) {
+                    $this->locations = $locations['response']->location_grid;
+                } else {
+                    /*Log::add('getLocations error: {'.
+                        'success:' . $locations['success'] .
+                        'response:' . !empty($locations['response']) .
+                        'total:' . !empty($locations['response']) ? $locations['response']->total : '?' .
+                        'raw:' . json_encode($locations), Log::DEBUG, $this->LogCATEGORY);*/
+                }
+            }
+
+            return $this->locations ?? [];
         }
 
-        Dt_Maarifa_Endpoints::instance();
+    }
+
+    Dt_Maarifa_Endpoints::instance();
         
         
 
