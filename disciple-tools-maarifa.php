@@ -99,7 +99,7 @@ class DT_Maarifa {
     private function __construct() {
         $is_rest = dt_is_rest();
 
-        if ( $is_rest && strpos( dt_get_url_path(), 'dt-maarifa' ) !== false ) {       
+        if ( $is_rest && strpos( dt_get_url_path(), 'dt-maarifa' ) !== false ) {
 
             require_once( 'rest-api/rest-api.php' ); // adds starter rest api class
         }

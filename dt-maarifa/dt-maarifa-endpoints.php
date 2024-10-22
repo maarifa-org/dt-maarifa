@@ -1,12 +1,12 @@
-    <?php
-    if ( !defined( 'ABSPATH' ) ) {
-        exit;
-    } // Exit if accessed directly
+<?php
+if ( !defined( 'ABSPATH' ) ) {
+    exit;
+} // Exit if accessed directly
 
     /**
      * Class DT_Maarifa_Endpoints
      */
-    class DT_Maarifa_Endpoints {
+class DT_Maarifa_Endpoints {
     /**
      * @var object Public_Hooks instance variable
      */
@@ -20,9 +20,9 @@
         return self::$_instance;
     } // End instance()
 
-        private $version = 1;
-        private $context = 'dt-maarifa';
-        private $namespace;
+    private $version = 1;
+    private $context = 'dt-maarifa';
+    private $namespace;
 
     /**
      * DT_Maarifa_Endpoints constructor.
@@ -34,91 +34,91 @@
 
     public function add_api_routes() {
 
-            $arg_schemas = [
-                'post_type' => [
-                    'description' => 'The post type',
-                    'type' => 'string',
-                    'required' => true,
-                    'validate_callback' => [ $this, 'prefix_validate_args' ]
-                ],
-                'id' => [
-                    'description' => 'The id of the post',
-                    'type' => 'integer',
-                    'required' => true,
-                    'validate_callback' => [ $this, 'prefix_validate_args' ]
-                ],
-                'comment_id' => [
-                    'description' => 'The id of the comment',
-                    'type' => 'integer',
-                    'required' => true,
-                    'validate_callback' => [ $this, 'prefix_validate_args' ]
-                ],
-                'date' => [
-                    'description' => 'The date the comment was made',
-                    'type' => 'string',
-                    'required' => false,
-                    'validate_callback' => [ $this, 'prefix_validate_args' ]
-                ],
-                'comment_type' => [
-                    'description' => 'The type of the comment',
-                    'type' => 'string',
-                    'required' => false,
-                    'validate_callback' => [ $this, 'prefix_validate_args' ]
-                ]
-            ];
+        $arg_schemas = [
+            'post_type' => [
+                'description' => 'The post type',
+                'type' => 'string',
+                'required' => true,
+                'validate_callback' => [ $this, 'prefix_validate_args' ]
+            ],
+            'id' => [
+                'description' => 'The id of the post',
+                'type' => 'integer',
+                'required' => true,
+                'validate_callback' => [ $this, 'prefix_validate_args' ]
+            ],
+            'comment_id' => [
+                'description' => 'The id of the comment',
+                'type' => 'integer',
+                'required' => true,
+                'validate_callback' => [ $this, 'prefix_validate_args' ]
+            ],
+            'date' => [
+                'description' => 'The date the comment was made',
+                'type' => 'string',
+                'required' => false,
+                'validate_callback' => [ $this, 'prefix_validate_args' ]
+            ],
+            'comment_type' => [
+                'description' => 'The type of the comment',
+                'type' => 'string',
+                'required' => false,
+                'validate_callback' => [ $this, 'prefix_validate_args' ]
+            ]
+        ];
 
 
         register_rest_route(
-            $this->namespace, '/contacts',  [
-                'methods'  => 'POST',
-                'callback' => [ $this, 'contacts' ],
-                'args' => [
-                   'post_type' => $arg_schemas['post_type'],
-                ],
-                'permission_callback' => function( WP_REST_Request $request ) {
-                    return $this->has_permission();
-                },
+            $this->namespace, '/contacts', [
+            'methods'  => 'POST',
+            'callback' => [ $this, 'contacts' ],
+            'args' => [
+               'post_type' => $arg_schemas['post_type'],
+            ],
+            'permission_callback' => function( WP_REST_Request $request ) {
+                return $this->has_permission();
+            },
 
             ]
         );
 
         register_rest_route(
             $namespace, '/contacts/(?P<id>\d+)', [
-                'methods'  => 'POST',
-                'callback' => [ $this, 'contact_by_id' ],
-//                'args' => [
-//                    'post_type' => $arg_schemas['post_type'],
-//                    'id' => $arg_schemas['id'],
-//                ],
-                    'args' => [
-                        'comment' => [
-                            'description' => 'The comment text',
-                            'type' => 'string',
-                            'required' => true,
-                            'validate_callback' => [ $this, 'prefix_validate_args' ]
-                        ],
-                        'post_type' => $arg_schemas['post_type'],
-                        'id' => $arg_schemas['id'],
-                        'comment_id' => $arg_schemas['comment_id'],
-                        'comment_type' => $arg_schemas['comment_type']
+            'methods'  => 'POST',
+            'callback' => [ $this, 'contact_by_id' ],
+            //                'args' => [
+            //                    'post_type' => $arg_schemas['post_type'],
+            //                    'id' => $arg_schemas['id'],
+            //                ],
+                'args' => [
+                    'comment' => [
+                        'description' => 'The comment text',
+                        'type' => 'string',
+                        'required' => true,
+                        'validate_callback' => [ $this, 'prefix_validate_args' ]
                     ],
-                'permission_callback' => function( WP_REST_Request $request ) {
+                    'post_type' => $arg_schemas['post_type'],
+                    'id' => $arg_schemas['id'],
+                    'comment_id' => $arg_schemas['comment_id'],
+                    'comment_type' => $arg_schemas['comment_type']
+                ],
+            'permission_callback' => function( WP_REST_Request $request ) {
                 return $this->has_permission();
-                },
+            },
             ]
         );
 
         register_rest_route(
             $namespace, '/contacts/(?P<id>\d+)/interactions', [
-                'methods'  => 'POST',
-                'callback' => [ $this, 'contact_interaction' ],
-                'args' => [
-                    'post_type' => $arg_schemas['post_type'],
-                    'id' => $arg_schemas['id'],
-                ],
-                'permission_callback' => function( WP_REST_Request $request ) {
+            'methods'  => 'POST',
+            'callback' => [ $this, 'contact_interaction' ],
+            'args' => [
+                'post_type' => $arg_schemas['post_type'],
+                'id' => $arg_schemas['id'],
+            ],
+            'permission_callback' => function( WP_REST_Request $request ) {
                 return $this->has_permission();
-                },
+            },
             ]
         );
 
