@@ -57,6 +57,8 @@ class Disciple_Tools_Maarifa_Hooks
         add_filter( 'dt_assignable_users_compact', array( $this, 'assignable_users_compact' ), 10, 3 );
 
         add_filter( 'dt_data_reporting_configurations', array( $this, 'data_reporting_configurations' ), 10, 1 );
+
+        add_filter( 'dt_filter_comment_types_receiving_comment_notification', array( $this, 'comment_type_notifications' ) );
     } // End __construct()
 
     /**
@@ -391,6 +393,10 @@ class Disciple_Tools_Maarifa_Hooks
         return $list;
     }
 
+    public function comment_type_notifications( $comment_types ) {
+        $comment_types[] = 'maarifa';
+        return $comment_types;
+    }
     private function get_api_host( $site_url ) {
 
         $api_host = get_option( 'dt_maarifa_api_host' );

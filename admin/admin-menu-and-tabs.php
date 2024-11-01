@@ -201,7 +201,8 @@ class DT_Maarifa_Tab_General
         </tbody>
         </table>
         <?php endif; ?>
-        <?php if ( current_user_can( 'administrator' ) ): ?>
+        <?php // phpcs:ignore
+        if ( current_user_can( 'administrator' ) ): ?>
             <br>
             <table class="widefat striped">
                 <thead>
