@@ -229,6 +229,14 @@ class DT_Maarifa_Endpoints
             $fields_map['gender'] = $contact_map['gender'];
         }
 
+        if ( !empty( $contact_map['street'] ) ) {
+
+            dt_write_log( 'Valor street' );
+            dt_write_log( $contact_map['street'] );
+
+            $fields_map['contact_address'] = [ [ 'value' => $contact_map['country'] ] ];
+        }
+
             // Age
         if ( !empty( $contact_map['age'] ) ) {
 
@@ -476,22 +484,25 @@ class DT_Maarifa_Endpoints
                 ] );
 
                 dt_write_log( '1 post' );
-                dt_write_log( $post );
+                dt_write_log( $fields );
 
-            // Country --> Locations
-            //if ( !empty( $fields['country'] ) ) {
+                // Country --> Locations
+                if ( !empty( $fields['street'] ) && !empty( $post['ID'] ) ) {
 
-                //$geoloc = add_location( $request );
-                $post['maarifa_data']['location_details'] = 'TESTE';
+                    dt_write_log( '$request' );
+                    dt_write_log( $request );
+
+                    $geoloc = $this->add_user_location( $request, $post['ID'] );
+                    $post['maarifa_data']['location_details'] = $geoloc;
 
 
-                dt_write_log( 'geoloc' );
-                dt_write_log( $geoloc );
+                    dt_write_log( 'geoloc' );
+                    dt_write_log( $geoloc );
 
-                dt_write_log( 'post' );
-                dt_write_log( $post );
+                    dt_write_log( 'post' );
+                    dt_write_log( $post );
 
-            //}
+                }
 
                 return $post;
             }
@@ -635,12 +646,20 @@ class DT_Maarifa_Endpoints
 
     }
 
-    public function add_user_location( WP_REST_Request $request ) {
+    public function add_user_location( WP_REST_Request $request, $post_id ) {
 
         $url_params = $request->get_url_params();
         $body = $request->get_json_params() ?? $request->get_body_params();
 
-        $result = DT_Posts::geolocate_addresses( $url_params['id'], $url_params['post_type'], 'country', $body['country'] );
+/*        dt_write_log( 'Add_user_location' );
+        dt_write_log( $body['id'] );
+        dt_write_log( $url_params['post_type'] );
+        dt_write_log( $post_id );  */
+
+        $result = DT_Posts::geolocate_addresses( $post_id, $url_params['post_type'], 'contact_address', $body['country'] );
+/*
+        dt_write_log( 'result' );
+        dt_write_log( $result );  */
 
         return $result;
     }
