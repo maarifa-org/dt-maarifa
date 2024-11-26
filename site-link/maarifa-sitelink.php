@@ -41,7 +41,7 @@ class Disciple_Tools_Maarifa_SiteLink
         add_filter( 'site_link_type', array( $this, 'site_link_type' ), 10, 1 );
         add_filter( 'site_link_type_capabilities', array( $this, 'site_link_capabilities' ), 10, 1 );
 
-        add_action( 'after_setup_theme', array( $this, 'register_maarifa_source' ) );
+        $this->register_maarifa_source();
     } // End __construct()
 
 
@@ -51,7 +51,6 @@ class Disciple_Tools_Maarifa_SiteLink
      * @since 0.2
      */
     public function register_maarifa_source() {
-
         $lists = dt_get_option( 'dt_site_custom_lists' );
         if ( isset( $lists, $lists['sources'] ) ) {
             if ( !isset( $lists['sources']['maarifa'] ) ) {
