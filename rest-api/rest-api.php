@@ -186,8 +186,8 @@ class DT_Maarifa_Endpoints
         'maarifa_data' => $contact_map['id'],
 
         );
-
-        $fields_map['sources']['values'][0]['value'] = 'Maarifa';
+         
+        $fields_map['sources']['values'][0]['value'] = 'maarifa';            
 
         $fields_map['maarifa_data'] = $contact_map;
 
