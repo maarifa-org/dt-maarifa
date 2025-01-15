@@ -163,18 +163,6 @@ class DT_Maarifa_Endpoints
         return true;
     }
 
-    public function add_location( $request ) {
-
-        $url_params = $request->get_url_params();
-        $body = $request->get_json_params() ?? $request->get_body_params();
-
-        dt_write_log( ' request ' );
-        dt_write_log( $request );
-       // $result = DT_Posts::geolocate_addresses( $body['id'], $body['post_type'], 'country', $body['country'] );
-
-        return $result;
-    }
-
     public function map_fields_to_contact( $contact_map ) {
 
         $fields_map = null;
@@ -229,15 +217,7 @@ class DT_Maarifa_Endpoints
             $fields_map['gender'] = $contact_map['gender'];
         }
 
-        if ( !empty( $contact_map['street'] ) ) {
-
-            dt_write_log( 'Valor street' );
-            dt_write_log( $contact_map['street'] );
-
-            $fields_map['contact_address'] = [ [ 'value' => $contact_map['country'] ] ];
-        }
-
-            // Age
+        // Age
         if ( !empty( $contact_map['age'] ) ) {
 
             $age = '';
@@ -439,8 +419,6 @@ class DT_Maarifa_Endpoints
         //Converts Maarifa field names to DT field names
         $fields2 = $this->map_fields_to_contact( $fields );
 
-        dt_write_log( $fields2 );
-
         $url_params = $request->get_url_params();
         $get_params = $request->get_query_params();
         $silent     = isset( $get_params['silent'] ) && $get_params['silent'] === 'true';
@@ -468,11 +446,14 @@ class DT_Maarifa_Endpoints
             if ( isset( $return_maarifa ) && ! $return_maarifa == 0 )
             {//Contact already exits in Maarifa
 
+                dt_write_log( 'Update post' );
 
                 //Update the contact
                 $post_id_return = $return_maarifa[0]->post_id;
 
-                $this->update_maarifa_contact( $request, $post_id_return, $fields2 );
+                $post = $this->update_maarifa_contact( $request, $post_id_return, $fields2 );
+
+                return $post;
 
             }
             else //Contact is new
@@ -483,26 +464,15 @@ class DT_Maarifa_Endpoints
 
                 ] );
 
-                dt_write_log( '1 post' );
-                dt_write_log( $fields );
-
                 // Country --> Locations
-                if ( !empty( $fields['street'] ) && !empty( $post['ID'] ) ) {
+                $geoloc = $this->add_user_location( $request, $post['ID'] );
+                $post['maarifa_data']['location_details'] = $geoloc;
 
-                    dt_write_log( '$request' );
-                    dt_write_log( $request );
+                dt_write_log( 'geoloc Create' );
+                dt_write_log( $geoloc );
 
-                    $geoloc = $this->add_user_location( $request, $post['ID'] );
-                    $post['maarifa_data']['location_details'] = $geoloc;
-
-
-                    dt_write_log( 'geoloc' );
-                    dt_write_log( $geoloc );
-
-                    dt_write_log( 'post' );
-                    dt_write_log( $post );
-
-                }
+                dt_write_log( 'post' );
+                dt_write_log( $post );
 
                 return $post;
             }
@@ -522,8 +492,9 @@ class DT_Maarifa_Endpoints
         //Converts Maarifa field names to DT field names
         $fields3 = $this->map_fields_to_contact( $fields_orig );
 
+        $post = $this->update_maarifa_contact( $request, $id_upd, $fields3 );
 
-        $this->update_maarifa_contact( $request, $id_upd, $fields3 );
+        return $post;
     }
 
 
@@ -545,7 +516,19 @@ class DT_Maarifa_Endpoints
         $get_params = $request->get_query_params();
         $silent = isset( $get_params['silent'] ) && $get_params['silent'] === 'true';
 
-        return DT_Posts::update_post( $url_params['post_type'], $post_id, $fields2, $silent );
+        // Country --> Locations
+        $geoloc = $this->add_user_location( $request, $post_id );
+        $fields2['maarifa_data']['location_details'] = $geoloc;
+
+        $post = DT_Posts::update_post( $url_params['post_type'], $post_id, $fields2, $silent );
+
+        dt_write_log( '$geoloc Update' );
+        dt_write_log( $geoloc );
+
+        dt_write_log( '$post' );
+        dt_write_log( $post );
+
+        return $post;
     }
 
 
@@ -595,7 +578,8 @@ class DT_Maarifa_Endpoints
 
 
                 if ( isset( $value['when_made'] ) ){
-                    $args['comment_date'] = $value['when_made'];
+
+                    $args['comment_date'] = dt_format_date( $value['when_made'], 'Y-m-d H:i:s' );
                 }
 
                 if ( isset( $value['responder_name'] ) ){
@@ -612,21 +596,10 @@ class DT_Maarifa_Endpoints
                     $args['comment_meta'] = $value['meta'];
                 }
 
-                if ( isset( $value['id'] ) )
-                {//If comment_id exists, update the comment
+                dt_write_log( 'Add_interactions CREATE' );
 
-                    $id = $value['id'];
+                $result = DT_Posts::add_post_comment( $url_params['post_type'], $url_params['id'], $comment, $type, $args, true, $silent );
 
-                    dt_write_log( 'Add_interactions UPDATE' );
-                    dt_write_log( $id );
-
-                    $result = DT_Posts::update_post_comment( $id, $comment, true, $type, $args );
-                }
-                else { //If doesn't, create a new comment
-                    dt_write_log( 'Add_interactions CREATE' );
-
-                    $result = DT_Posts::add_post_comment( $url_params['post_type'], $url_params['id'], $comment, $type, $args, true, $silent );
-                }
             }
 
             if ( is_wp_error( $result ) ) {
@@ -651,15 +624,7 @@ class DT_Maarifa_Endpoints
         $url_params = $request->get_url_params();
         $body = $request->get_json_params() ?? $request->get_body_params();
 
-/*        dt_write_log( 'Add_user_location' );
-        dt_write_log( $body['id'] );
-        dt_write_log( $url_params['post_type'] );
-        dt_write_log( $post_id );  */
-
         $result = DT_Posts::geolocate_addresses( $post_id, $url_params['post_type'], 'contact_address', $body['country'] );
-/*
-        dt_write_log( 'result' );
-        dt_write_log( $result );  */
 
         return $result;
     }
