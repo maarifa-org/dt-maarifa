@@ -1,7 +1,7 @@
 {
   "name": "Disciple Tools - Maarifa",
-  "version": "0.9.8",
-  "last_updated": "2024-07-25 11:00:00",
+  "version": "0.9.9",
+  "last_updated": "2024-11-01 11:00:00",
   "author": "maarifa-org",
   "author_homepage": "https://github.com/maarifa-org",
   "git_owner": "maarifa-org",
@@ -11,7 +11,7 @@
 
   "requires": "4.7",
   "tested": "6.5",
-  "upgrade_notice": "Support voicemail playback",
+  "upgrade_notice": "Notify users who chose to follow all",
 
   "sections": {
     "description": "Disciple Tools - Maarifa integrates the two platforms.",

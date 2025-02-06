@@ -18,7 +18,6 @@ class DT_Maarifa_Endpoints
         }
 
         return self::$_instance;
-
     } // End instance()
 
         private $version = 1;
@@ -31,7 +30,6 @@ class DT_Maarifa_Endpoints
 
         $this->namespace = $this->context . '/v' . intval( $this->version );
         add_action( 'rest_api_init', [ $this, 'add_api_routes' ] );
-
     }
 
     public function add_api_routes() {
@@ -616,7 +614,6 @@ class DT_Maarifa_Endpoints
                 return $ret;
             }
         }
-
     }
 
     public function add_user_location( WP_REST_Request $request, $post_id ) {
@@ -628,10 +625,6 @@ class DT_Maarifa_Endpoints
 
         return $result;
     }
-
 }
 
     Dt_Maarifa_Endpoints::instance();
-
-
-

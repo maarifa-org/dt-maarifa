@@ -43,7 +43,6 @@ class Disciple_Tools_Maarifa_Tile
 
         add_filter( 'dt_comments_additional_sections', array( $this, 'add_comment_section' ), 10, 2 );
         add_filter( 'dt_data_reporting_field_output', array( $this, 'data_reporting_field_output' ), 10, 4 );
-
     } // End __construct()
 
     public static function dt_contact_fields( array $fields, string $post_type = '' ){
