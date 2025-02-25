@@ -257,16 +257,11 @@ class DT_Maarifa_Endpoints
 
         }
 
-        if ( !empty( $contact_map['tags'] ) )
-            {
-
-            $int_count0 = 0;
+        if ( !empty( $contact_map['tags'] ) ) {
 
             foreach ( $contact_map['tags'] as $key => $value ) {
 
-                $fields_map['tags']['values'][$int_count0]['value'] = $contact_map['tags'][$key]['alias'];
-
-                $int_count0++;
+                $fields_map['tags']['values'][] = [ 'value' => $value['alias'] ];
 
             }
         }
@@ -279,128 +274,103 @@ class DT_Maarifa_Endpoints
 
         if ( !empty( $contact_map['milestones'] ) ) {
 
-            $int_count = 0;
+            dt_write_log( 'Contact_map MILESTONES' );
+            dt_write_log( $contact_map['milestones'] );
 
             foreach ( $contact_map['milestones'] as $key => $value ) {
 
-                if ( $value == 1 )
-                {
+                if ( $value == 1 ) {
+
                     switch ( $key ) {
 
                         case 'has bible':
 
-                            $fields_map['milestones']['values'][$int_count]['value'] = 'milestone_has_bible';
-                            $int_count++;
-
+                            $fields_map['milestones']['values'][] = [ 'value' => 'milestone_has_bible' ];
                             break;
 
                         case 'studying':
 
-                            $fields_map['milestones']['values'][$int_count]['value'] = 'milestone_reading_bible';
-                            $int_count++;
-
+                            $fields_map['milestones']['values'][] = [ 'value' => 'milestone_reading_bible' ];
                             break;
 
                         case 'profession':
 
-                            $fields_map['milestones']['values'][$int_count]['value'] = 'milestone_belief';
-                            $int_count++;
-
+                            $fields_map['milestones']['values'][] = [ 'value' => 'milestone_belief' ];
                             break;
 
                         case 'can share':
 
-                            $fields_map['milestones']['values'][$int_count]['value'] = 'milestone_can_share';
-                            $int_count++;
-
+                            $fields_map['milestones']['values'][] = [ 'value' => 'milestone_can_share' ];
                             break;
 
                         case 'baptized':
 
-                            $fields_map['milestones']['values'][$int_count]['value'] = 'milestone_baptized';
-                            $int_count++;
-
+                            $fields_map['milestones']['values'][] = [ 'value' => 'milestone_baptized' ];
                             break;
 
                         case 'has bible':
 
-                            $fields_map['milestones']['values'][$int_count]['value'] = 'milestone_has_bible';
-                            $int_count++;
-
+                            $fields_map['milestones']['values'][] = [ 'value' => 'milestone_has_bible' ];
                             break;
 
                         case 'studying':
 
-                            $fields_map['milestones']['values'][$int_count]['value'] = 'milestone_reading_bible';
-                            $int_count++;
-
+                            $fields_map['milestones']['values'][] = [ 'value' => 'milestone_reading_bible' ];
                             break;
 
                         case 'profession':
 
-                            $fields_map['milestones']['values'][$int_count]['value'] = 'milestone_belief';
-                            $int_count++;
-
+                            $fields_map['milestones']['values'][] = [ 'value' => 'milestone_belief' ];
                             break;
 
                         case 'can share':
 
-                            $fields_map['milestones']['values'][$int_count]['value'] = 'milestone_can_share';
-                            $int_count++;
-
+                            $fields_map['milestones']['values'][] = [ 'value' => 'milestone_can_share' ];
                             break;
 
                         case 'sharing':
 
-                            $fields_map['milestones']['values'][$int_count]['value'] = 'milestone_sharing';
-                            $int_count++;
-
+                            $fields_map['milestones']['values'][] = [ 'value' => 'milestone_sharing' ];
                             break;
 
                         case 'baptizing':
 
-                            $fields_map['milestones']['values'][$int_count]['value'] = 'milestone_baptizing';
-                            $int_count++;
-
+                            $fields_map['milestones']['values'][] = [ 'value' => 'milestone_baptizing' ];
                             break;
 
                         case 'in group':
 
-                            $fields_map['milestones']['values'][$int_count]['value'] = 'milestone_in_group';
-                            $int_count++;
-
+                            $fields_map['milestones']['values'][] = [ 'value' => 'milestone_in_group' ];
                             break;
 
                         case 'starting groups':
 
-                            $fields_map['milestones']['values'][$int_count]['value'] = 'milestone_planting';
-                            $int_count++;
-
+                            $fields_map['milestones']['values'][] = [ 'value' => 'milestone_planting' ];
                             break;
 
                         case 'baptized':
 
-                            $fields_map['milestones']['values'][$int_count]['value'] = 'milestone_baptized';
-                            $int_count++;
-
+                            $fields_map['milestones']['values'][] = [ 'value' => 'milestone_baptized' ];
                             break;
 
 
                     }
                 }
-
             }
         }
-        else //No milestones
-            {
-            $fields_map['milestones']['values'][1]['value'] = 0;
+        else {
+
+            $fields_map['milestones']['values'] = [];
+            //No milestones
+            //$fields_map['milestones']['values'][1]['value'] = ''; //TO DO - problema na mensagem quando nao tem nenhuma milestone.
+            //$fields_map['milestones']['values'][] = [ 'value' => '' ];
         }
 
 
-            dt_write_log( 'Fields_map MILESTONES' );
-            dt_write_log( $fields_map );
+        dt_write_log( 'Fields_map MILESTONES' );
+        dt_write_log( $fields_map['milestones'] );
 
-            return $fields_map;
+        return $fields_map;
     }
 
 
