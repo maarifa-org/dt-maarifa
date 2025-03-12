@@ -561,45 +561,11 @@ class DT_Maarifa_Endpoints
         $silent = isset( $get_params['silent'] ) && $get_params['silent'] === 'true';
 
         // Country --> Locations
-        
-        $previews_post = DT_Posts::get_post( $url_params['post_type'], $post_id, false, true, $silent );
-        
-        dt_write_log( '$previews_post' );
-        dt_write_log( $previews_post );
-
-        //$int_count = 0;
-
-        if ( !empty( $previews_post['location_grid'] ) ) 
-        {//If the location received was already set previewsly, do not add it again
+        $geoloc = $this->add_user_location( $request, $post_id );
+        $fields2['maarifa_data']['location_details'] = $geoloc;
             
-            foreach ( $previews_post['location_grid'] as $key => $value ) {
-
-                /*dt_write_log( $previews_post['location_grid']['matched_search'] );
-                dt_write_log( $body['country'] );
-
-                if( $previews_post['location_grid']['matched_search'] == $body['country'] )
-                {
-
-                    $int_count ++;
-                    dt_write_log( '$int_count' );
-                    dt_write_log( $int_count );
-
-                }*/
-            }
-        }
-
-        /*if( $int_count == 0 )
-        {*/
-
-            $geoloc = $this->add_user_location( $request, $post_id );
-            $fields2['maarifa_data']['location_details'] = $geoloc;
-            
-            dt_write_log( '$geoloc Update' );
-            dt_write_log( $geoloc );            
-        //}
-
-        dt_write_log( '$int_count - geoloc' );
-        dt_write_log( $int_count );  
+        dt_write_log( '$geoloc Update' );
+        dt_write_log( $geoloc );            
 
         $post = DT_Posts::update_post( $url_params['post_type'], $post_id, $fields2, $silent );
 
