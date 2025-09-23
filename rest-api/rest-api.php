@@ -52,7 +52,7 @@ class DT_Maarifa_Endpoints
                 'type' => 'integer',
                 'required' => true,
                 'validate_callback' => [ $this, 'prefix_validate_args' ]
-            ],
+            ],            
             'date' => [
                 'description' => 'The date the comment was made',
                 'type' => 'string',
@@ -119,6 +119,7 @@ class DT_Maarifa_Endpoints
                         'id' => $arg_schemas['id'],
                         'date' => $arg_schemas['date'],
                         'comment_type' => $arg_schemas['comment_type'],
+                        'comment' => $arg_schemas['comment'],
                     ],
                     'permission_callback' => '__return_true',
                 ]
@@ -174,7 +175,6 @@ class DT_Maarifa_Endpoints
         );
 
         $fields_map['sources']['values'][0]['value'] = 'maarifa';
-
         $fields_map['maarifa_data'] = $contact_map;
 
 
@@ -185,7 +185,7 @@ class DT_Maarifa_Endpoints
             $count = count( $str_arr );
             for ( $i = 0; $i < $count; $i++ )
             {
-                        $fields_map['contact_email']['values'][$i]['value'] = trim( trim( trim( $str_arr[$i], '[' ), ']' ), '"' );
+                $fields_map['contact_email']['values'][$i]['value'] = trim( trim( trim( $str_arr[$i], '[' ), ']' ), '"' );
 
             }
 
@@ -266,16 +266,13 @@ class DT_Maarifa_Endpoints
             }
         }
 
-            // Spiritual
+        // Spiritual
         if ( $contact_map['spiritual'] === 'believer' ) {
 
             $fields_map['milestones'][] = 'milestone_belief';
         }
 
         if ( !empty( $contact_map['milestones'] ) ) {
-
-            dt_write_log( 'Contact_map MILESTONES' );
-            dt_write_log( $contact_map['milestones'] );
 
             foreach ( $contact_map['milestones'] as $key => $value ) {
 
@@ -437,14 +434,9 @@ class DT_Maarifa_Endpoints
         }
         else {
             //Adding an empty milestone's structure to not get error msg
-
             $fields_map['milestones']['values'] = [];
 
         }
-
-
-        dt_write_log( 'Fields_map MILESTONES' );
-        dt_write_log( $fields_map['milestones'] );
 
         return $fields_map;
     }
@@ -456,21 +448,16 @@ class DT_Maarifa_Endpoints
 
     public function contacts( WP_REST_Request $request ) {
 
-        dt_write_log( 'Contacts' );
-
         $fields     = $request->get_json_params() ?? $request->get_body_params();
 
         //Converts Maarifa field names to DT field names
+
         $fields2 = $this->map_fields_to_contact( $fields );
 
         $url_params = $request->get_url_params();
         $get_params = $request->get_query_params();
         $silent     = isset( $get_params['silent'] ) && $get_params['silent'] === 'true';
-
-    //                    $check_dups = ! empty( $get_params['check_for_duplicates'] ) ? explode( ',', $get_params['check_for_duplicates'] ) :
-        $check_dups = true; //TO DO
-
-
+        $check_dups = true; 
         $maarifa_contact_id = null;
 
         if ( isset( $fields2['maarifa_data'] ) )
@@ -490,8 +477,6 @@ class DT_Maarifa_Endpoints
             if ( isset( $return_maarifa ) && ! $return_maarifa == 0 )
             {//Contact already exits in Maarifa
 
-                dt_write_log( 'Update post' );
-
                 //Update the contact
                 $post_id_return = $return_maarifa[0]->post_id;
 
@@ -508,15 +493,9 @@ class DT_Maarifa_Endpoints
 
                 ] );
 
-                // Country --> Locations
+                // Street --> Locations
                 $geoloc = $this->add_user_location( $request, $post['ID'] );
                 $post['maarifa_data']['location_details'] = $geoloc;
-
-                dt_write_log( 'geoloc Create' );
-                dt_write_log( $geoloc );
-
-                dt_write_log( 'post' );
-                dt_write_log( $post );
 
                 return $post;
             }
@@ -562,15 +541,10 @@ class DT_Maarifa_Endpoints
 
         // Country --> Locations
         $geoloc = $this->add_user_location( $request, $post_id );
+
         $fields2['maarifa_data']['location_details'] = $geoloc;
 
-        dt_write_log( '$geoloc Update' );
-        dt_write_log( $geoloc );
-
         $post = DT_Posts::update_post( $url_params['post_type'], $post_id, $fields2, $silent );
-
-        dt_write_log( '$post' );
-        dt_write_log( $post );
 
         return $post;
     }
@@ -608,7 +582,7 @@ class DT_Maarifa_Endpoints
         $get_params = $request->get_query_params();
         $body = $request->get_json_params() ?? $request->get_body_params();
         $silent = isset( $get_params['silent'] ) && $get_params['silent'] === 'true';
-        $args = [];
+        $attributes = $request->get_attributes();
 
         $type = 'maarifa';
 
@@ -616,37 +590,41 @@ class DT_Maarifa_Endpoints
 
             $value = null;
             $result = null;
-            $ret = null;
+            $ret = null;          
 
             foreach ( $body as $key => $value ) {
 
+                if ( isset( $value['date'] ) ){
 
-                if ( isset( $value['when_made'] ) ){
-
-                    $args['comment_date'] = dt_format_date( $value['when_made'], 'Y-m-d H:i:s' );
+                    $args['comment_date'] = dt_format_date( $value['date'], 'Y-m-d H:i:s' );
                 }
 
                 if ( isset( $value['responder_name'] ) ){
+
                     $args['user_id'] = $value['responder_name'];
                 }
 
-                if ( isset( $value['notes'] ) ){
+                if ( isset( $value['comment'] ) ){
 
-                    $comment = 'Type: '. $type ."\n". 'Responder name: '. $value['responder_name']. "\n" .$value['notes'];
+                    $args['comment'] = $value['comment'];
+                    
+                    $comment = (String) $args['comment'];
 
-                }
+                }                
 
-                if ( isset( $value['meta'] ) ) {
+               if ( isset( $value['meta'] ) ) {
                     $args['comment_meta'] = $value['meta'];
                 }
 
-                dt_write_log( 'Add_interactions CREATE' );
-
                 $result = DT_Posts::add_post_comment( $url_params['post_type'], $url_params['id'], $comment, $type, $args, true, $silent );
+
+                break;
 
             }
 
             if ( is_wp_error( $result ) ) {
+
+                dt_write_log( 'Add_interactions is_wp_error' );
 
                 return $result;
             }
@@ -657,6 +635,7 @@ class DT_Maarifa_Endpoints
                 unset( $ret['populated_children'] );
                 unset( $ret['post_fields'] );
                 $ret['comment_meta'] = get_comment_meta( $ret['comment_ID'] );
+
                 return $ret;
             }
         }
@@ -666,8 +645,10 @@ class DT_Maarifa_Endpoints
 
         $url_params = $request->get_url_params();
         $body = $request->get_json_params() ?? $request->get_body_params();
+        dt_write_log( 'Body location' );
+        dt_write_log( $body['street'] );
 
-        $result = DT_Posts::geolocate_addresses( $post_id, $url_params['post_type'], 'contact_address', $body['country'] );
+        $result = DT_Posts::geolocate_addresses( $post_id, $url_params['post_type'], 'contact_address', $body['street'] );
 
         return $result;
     }
