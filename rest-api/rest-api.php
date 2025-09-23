@@ -52,7 +52,7 @@ class DT_Maarifa_Endpoints
                 'type' => 'integer',
                 'required' => true,
                 'validate_callback' => [ $this, 'prefix_validate_args' ]
-            ],            
+            ],
             'date' => [
                 'description' => 'The date the comment was made',
                 'type' => 'string',
@@ -457,7 +457,7 @@ class DT_Maarifa_Endpoints
         $url_params = $request->get_url_params();
         $get_params = $request->get_query_params();
         $silent     = isset( $get_params['silent'] ) && $get_params['silent'] === 'true';
-        $check_dups = true; 
+        $check_dups = true;
         $maarifa_contact_id = null;
 
         if ( isset( $fields2['maarifa_data'] ) )
@@ -590,7 +590,7 @@ class DT_Maarifa_Endpoints
 
             $value = null;
             $result = null;
-            $ret = null;          
+            $ret = null;
 
             foreach ( $body as $key => $value ) {
 
@@ -607,12 +607,12 @@ class DT_Maarifa_Endpoints
                 if ( isset( $value['comment'] ) ){
 
                     $args['comment'] = $value['comment'];
-                    
-                    $comment = (String) $args['comment'];
 
-                }                
+                    $comment = (string) $args['comment'];
 
-               if ( isset( $value['meta'] ) ) {
+                }
+
+                if ( isset( $value['meta'] ) ) {
                     $args['comment_meta'] = $value['meta'];
                 }
 
