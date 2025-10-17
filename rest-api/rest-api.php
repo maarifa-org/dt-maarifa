@@ -65,6 +65,12 @@ class DT_Maarifa_Endpoints
                 'required' => false,
                 'validate_callback' => [ $this, 'prefix_validate_args' ]
             ],
+            'comment' => [
+                'description' => 'The comment',
+                'type' => 'string',
+                'required' => false,
+                'validate_callback' => [ $this, 'prefix_validate_args' ]
+            ],            
             'maarifa_data' => [
                 'description' => 'The Maarifa id of the comment',
                 'type' => 'string',
@@ -645,8 +651,6 @@ class DT_Maarifa_Endpoints
 
         $url_params = $request->get_url_params();
         $body = $request->get_json_params() ?? $request->get_body_params();
-        dt_write_log( 'Body location' );
-        dt_write_log( $body['street'] );
 
         $result = DT_Posts::geolocate_addresses( $post_id, $url_params['post_type'], 'contact_address', $body['street'] );
 
