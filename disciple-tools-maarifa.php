@@ -289,8 +289,8 @@ add_action( 'plugins_loaded', function () {
     ], false );
 
     $version_db = get_option( DT_Maarifa::$token . '_version', '' );
-    error_log( "Checking dt-maarifa version ($version_db vs " . $plugin_data['Version'] . ')' );
     if ( $version_db !== $plugin_data['Version'] ) {
+        error_log( "Checking dt-maarifa version ($version_db vs " . $plugin_data['Version'] . ')' );
 
         require_once( get_template_directory() . '/dt-core/admin/site-link-post-type.php' );
 

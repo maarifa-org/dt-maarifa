@@ -73,6 +73,16 @@ class DT_Maarifa_Endpoints
 
         ];
 
+        //version - Get plugin version
+        register_rest_route(
+            $this->namespace, '/version', [
+                [
+                'methods'  => 'GET',
+                'callback' => [ $this, 'get_version' ],
+                'permission_callback' => '__return_true',
+                ]
+            ]
+        );
 
         //create_post - Create or update contact
         register_rest_route(
@@ -111,13 +121,6 @@ class DT_Maarifa_Endpoints
                 [
                     'methods'  => 'POST',
                     'callback' => [ $this, 'add_interactions' ],
-                    'args' => [
-                        'post_type' => $arg_schemas['post_type'],
-                        'id' => $arg_schemas['id'],
-                        'date' => $arg_schemas['date'],
-                        'comment_type' => $arg_schemas['comment_type'],
-                        'comment' => $arg_schemas['comment'],
-                    ],
                     'permission_callback' => '__return_true',
                 ]
             ]
@@ -389,6 +392,21 @@ class DT_Maarifa_Endpoints
 
     public static function prefix_validate_args_static( $value, $request, $param ) {
         return self::instance()->prefix_validate_args( $value, $request, $param );
+    }
+
+    public function get_version( WP_REST_Request $request )
+    {
+        // Get the plugin file path (parent directory of current file)
+        $plugin_file = dirname( __DIR__ ) . '/disciple-tools-maarifa.php';
+
+        // Extract version from plugin header
+        $plugin_data = get_file_data( $plugin_file, [
+            'Version' => 'Version',
+        ], false );
+
+        return [
+            'version' => $plugin_data['Version'] ?? '1.0.0',
+        ];
     }
 
     /**
