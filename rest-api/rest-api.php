@@ -116,7 +116,7 @@ class DT_Maarifa_Endpoints
                         'id' => $arg_schemas['id'],
                         'date' => $arg_schemas['date'],
                         'comment_type' => $arg_schemas['comment_type'],
-                        'comment' => $arg_schemas['comment'],
+                        //'comment' => $arg_schemas['comment'],
                     ],
                     'permission_callback' => '__return_true',
                 ]
@@ -169,9 +169,26 @@ class DT_Maarifa_Endpoints
         );
 
         $fields_map['sources']['values'][0]['value'] = 'maarifa';
-        $fields_map['maarifa_data'] = $contact_map;
+        $fields_map['maarifa_data'] = $contact_map; //ver se maarifa_data tem os responder names
+  
+        if ( !empty( $contact_map['tags'] ) ) {
+            foreach ( $contact_map['tags'] as $key => $value ) {
+                $fields_map['tags']['values'][] = [ 'value' => $value['alias'] ];
+            }
+        }
 
+        $intInt = 0;
 
+        if ( !empty( $contact_map['responders_name'] ) ) {  
+            $intInt = 0;
+            foreach ($contact_map['responders_name'] as $key => $value ) {
+//                $fields_map['responders_name']['values'][$intInt]['value'] = $responders_name['value'];
+                    $fields_map['responders_name']['values'][] = [ 'value' => $value['value'] ];                
+                dt_write_log( 'responders_name: ' . json_encode( $fields_map['responders_name']['values'][$intInt]['value']) );  
+            }
+        }     
+        dt_write_log( 'intInt: ' . json_encode( $intInt ));         
+        
         if ( !empty( $contact_map['email'] ) ) {
             $str_arr = preg_split( '/\,/', $contact_map['email'] );
 
