@@ -65,14 +65,13 @@ class Disciple_Tools_Maarifa_Tile
                     'hidden' => true
                 );
             }
-            if ( !isset( $fields['responders_name'] ) ){
-                $fields['responders_name'] = [ 
-                    'name' => 'Maarifa Responders', 
-                    'type' => 'tags', 
-                    "icon" => "/wp-content/themes/disciple-tools-theme/dt-assets/images/tag.svg",
-                    "readonly" => true, 
-                    'tile' => 'dt_maarifa'];    
-            }       
+            $fields['responders_name'] = [ 
+                'name' => 'Maarifa Responders', 
+                'type' => 'tags', 
+                "icon" => "/wp-content/themes/disciple-tools-theme/dt-assets/images/tag.svg",
+                "placeholder" => "Maarifa Responders",
+                "readonly" => true, 
+                'tile' => 'dt_maarifa'];         
         }
     
         //don't forget to return the update fields array
@@ -151,9 +150,7 @@ class Disciple_Tools_Maarifa_Tile
                 .ip-location-details dt { width: 30%; }
                 .ip-location-details dd { width: 70%; }
             </style>
-            <?php //if ( isset( $maarifa_data['responder_name'] ) ): ?>
 
-            <?php //endif; ?>
             <?php if ( isset( $maarifa_data['id'] ) ): ?>
 
                 <div class="section-subheader section-subheader-maarifa">
