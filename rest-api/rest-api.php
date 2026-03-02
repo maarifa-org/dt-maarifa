@@ -169,7 +169,7 @@ class DT_Maarifa_Endpoints
             'type' => 'access',
             'milestones' => [],
             'maarifa_data' => $contact_map['id'],
-        );
+        ); 
 
         $fields_map['sources']['values'][0]['value'] = 'maarifa';
         $fields_map['maarifa_data'] = $contact_map; 
@@ -183,21 +183,19 @@ class DT_Maarifa_Endpoints
         $intInt = 0;
 
         if ( !empty( $contact_map['responders_name'] ) ) {      
-            $intInt = 0;
-              foreach ( $contact_map['responders_name'] as $key => $name ) {                    
-                $new_responder = $name ;       
-                $responders_name[] = $new_responder;
-
-                dt_write_log( 'responders_name: ' . json_encode( $name ));  
-                $intInt++;
-            }
-
-            $fields_map['responders_name'] = [              
-                "values" => $responders_name,
-                "force_values" => true // true will set source to the values entries. removing all others
-                ]
-            ;               
-        }           
+            // 1. Assemble the simple list of objects
+            foreach ( $contact_map['responders_name'] as $name ) {  
+                $new_responder = $name;                   
+                $responders_name[] = ['value' => $new_responder];                
+            }        
+        
+            $fields['responders_name'] = [                
+                "values"       => $responders_name,
+                "force_values" => true]
+            ;   
+            //$fields['responders_name_force_values'] = true;                          
+            dt_write_log( 'Fields - responders_name: ' . json_encode( $fields["responders_name"] ) );            
+        }                     
         
         if ( !empty( $contact_map['email'] ) ) {
             $str_arr = preg_split( '/\,/', $contact_map['email'] );
