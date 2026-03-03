@@ -187,7 +187,7 @@ class DT_Maarifa_Endpoints
                 $responders_name[] = [ 'value' => $new_responder ];
             }
 
-            $fields['responders_name'] = [
+            $fields_map['responders_name'] = [
                 'values'       => $responders_name,
                 'force_values' => true
             ];
