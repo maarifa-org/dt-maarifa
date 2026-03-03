@@ -65,15 +65,16 @@ class Disciple_Tools_Maarifa_Tile
                     'hidden' => true
                 );
             }
-            $fields['responders_name'] = [ 
-                'name' => 'Maarifa Responders', 
-                'type' => 'tags', 
-                "icon" => "/wp-content/themes/disciple-tools-theme/dt-assets/images/tag.svg",
-                "placeholder" => "Maarifa Responders",
-                "readonly" => true, 
-                'tile' => 'dt_maarifa'];         
+            $fields['responders_name'] = [
+                'name' => 'Maarifa Responders',
+                'type' => 'tags',
+                'icon' => '/wp-content/themes/disciple-tools-theme/dt-assets/images/tag.svg',
+                'placeholder' => 'Maarifa Responders',
+                'readonly' => true,
+                'tile' => 'dt_maarifa'
+            ];
         }
-    
+
         //don't forget to return the update fields array
         return $fields;
     }
