@@ -1,7 +1,7 @@
 {
   "name": "Disciple Tools - Maarifa",
-  "version": "1.0.1",
-  "last_updated": "2025-11-06 14:30:00",
+  "version": "1.1.0",
+  "last_updated": "2026-03-04 12:30:00",
   "author": "maarifa-org",
   "author_homepage": "https://github.com/maarifa-org",
   "git_owner": "maarifa-org",
@@ -10,8 +10,8 @@
   "homepage": "https://github.com/maarifa-org/dt-maarifa",
 
   "requires": "4.7",
-  "tested": "6.8.3",
-  "upgrade_notice": "Enhance API integration",
+  "tested": "6.9.1",
+  "upgrade_notice": "Show responder names in tile",
 
   "sections": {
     "description": "Disciple Tools - Maarifa integrates the two platforms.",
