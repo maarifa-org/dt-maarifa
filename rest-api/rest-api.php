@@ -174,6 +174,26 @@ class DT_Maarifa_Endpoints
         $fields_map['sources']['values'][0]['value'] = 'maarifa';
         $fields_map['maarifa_data'] = $contact_map;
 
+        if ( !empty( $contact_map['tags'] ) ) {
+            foreach ( $contact_map['tags'] as $key => $value ) {
+                $fields_map['tags']['values'][] = [ 'value' => $value['alias'] ];
+            }
+        }
+
+        if ( !empty( $contact_map['responders_name'] ) ) {
+            // 1. Assemble the simple list of objects
+            foreach ( $contact_map['responders_name'] as $name ) {
+                $new_responder = $name;
+                $responders_name[] = [ 'value' => $new_responder ];
+            }
+
+            $fields_map['responders_name'] = [
+                'values'       => $responders_name,
+                'force_values' => true
+            ];
+            //$fields['responders_name_force_values'] = true;
+            dt_write_log( 'Fields - responders_name: ' . json_encode( $fields['responders_name'] ) );
+        }
 
         if ( !empty( $contact_map['email'] ) ) {
             $str_arr = preg_split( '/\,/', $contact_map['email'] );
