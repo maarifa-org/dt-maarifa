@@ -153,22 +153,26 @@ class Disciple_Tools_Maarifa_Tile
             </style>
 
             <?php if ( isset( $maarifa_data['id'] ) ): ?>
-
+            <div class="cell">
                 <div class="section-subheader section-subheader-maarifa">
                     <?php esc_html_e( 'ID', 'dt_maarifa' ) ?>
                 </div>
                 <p><?php echo esc_html( $maarifa_data['id'] ) ?></p>
+            </div>
             <?php endif; ?>
             <?php if ( isset( $maarifa_data['first_contact'] ) ): ?>
+            <div class="cell">
                 <div class="section-subheader">
                     <?php esc_html_e( 'First Contact', 'dt_maarifa' ) ?>
                 </div>
                 <p>
                     <?php echo esc_html( $maarifa_data['first_contact'] ) ?>
                 </p>
+            </div>
             <?php endif; ?>
 
             <?php if ( isset( $maarifa_data['first_contact_details'] ) && isset( $maarifa_data['first_contact_details']['title'] ) ): ?>
+            <div class="cell">
                 <div class="section-subheader">
                     <?php esc_html_e( 'Campaign', 'dt_maarifa' ) ?>
                 </div>
@@ -202,9 +206,11 @@ class Disciple_Tools_Maarifa_Tile
                         </a>
                     <?php endif; ?>
                 </div>
+            </div>
             <?php endif; ?>
 
             <?php if ( isset( $maarifa_data['location_details'] ) && !empty( $maarifa_data['location_details'] ) ): ?>
+            <div class="cell">
                 <div class="section-subheader">
                     <?php esc_html_e( 'IP Location Info', 'dt_maarifa' ) ?>
                 </div>
@@ -226,6 +232,7 @@ class Disciple_Tools_Maarifa_Tile
                         <?php endif; ?>
                     </dl>
                 </div>
+            </div>
             <?php endif; ?>
 
             <div class="maarifa-request-info-container">
