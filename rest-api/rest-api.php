@@ -191,8 +191,6 @@ class DT_Maarifa_Endpoints
                 'values'       => $responders_name,
                 'force_values' => true
             ];
-            //$fields['responders_name_force_values'] = true;
-            dt_write_log( 'Fields - responders_name: ' . json_encode( $fields['responders_name'] ) );
         }
 
         if ( !empty( $contact_map['email'] ) ) {
