@@ -252,8 +252,6 @@ class Disciple_Tools_Maarifa_Tile
                 </button>
             </div>
 
-            <pre style="display: none;"><code style="display: block;"><?php echo json_encode( $maarifa_data, JSON_PRETTY_PRINT ) ?></code></pre>
-
             <div class="reveal" id="maarifa-request-modal" data-reveal data-reset-on-close>
                 <h3><?php esc_html_e( 'Request Info', 'dt_maarifa' )?></h3>
                 <p><?php esc_html_e( 'To contact the Maarifa team for any reason, enter your message below and the relevant team members will be notified.', 'dt_maarifa' ) ?></p>
