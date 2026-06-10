@@ -1,6 +1,6 @@
 {
   "name": "Disciple Tools - Maarifa",
-  "version": "1.1.2",
+  "version": "1.1.3",
   "last_updated": "2026-03-04 12:30:00",
   "author": "maarifa-org",
   "author_homepage": "https://github.com/maarifa-org",
@@ -11,7 +11,7 @@
 
   "requires": "4.7",
   "tested": "6.9.1",
-  "upgrade_notice": "Fix error when creating new site link",
+  "upgrade_notice": "Resolve caching issue with tile display",
 
   "sections": {
     "description": "Disciple Tools - Maarifa integrates the two platforms.",

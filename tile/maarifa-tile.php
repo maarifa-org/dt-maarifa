@@ -99,26 +99,19 @@ class Disciple_Tools_Maarifa_Tile
      */
     public function dt_details_additional_tiles( $tiles, $post_type = '' ) {
         if ( $post_type === 'contacts' ) {
-            $contact_id = get_the_ID();
-            if ( $contact_id ) {
-                $contact = DT_Posts::get_post( 'contacts', $contact_id, true, true );
-                if ( !is_wp_error( $contact ) && isset( $contact['maarifa_data'] ) ) {
-
-                    $tiles['dt_maarifa'] = [
-                        'label' => __( 'Maarifa', 'dt_maarifa' ),
-                        'display_conditions' => [
-                            'visibility' => 'custom',
-                            'conditions' => [
-                                'sources___maarifa' => [
-                                    'key' => 'sources',
-                                    'value' => 'maarifa',
-                                ],
-                            ],
-                            'operator' => 'or',
+            $tiles['dt_maarifa'] = [
+                'label' => __( 'Maarifa', 'dt_maarifa' ),
+                'display_conditions' => [
+                    'visibility' => 'custom',
+                    'conditions' => [
+                        'sources___maarifa' => [
+                            'key' => 'sources',
+                            'value' => 'maarifa',
                         ],
-                    ];
-                }
-            }
+                    ],
+                    'operator' => 'or',
+                ],
+            ];
         }
         return $tiles;
     }
@@ -129,14 +122,32 @@ class Disciple_Tools_Maarifa_Tile
             $contact_id = get_the_ID();
             $contact = DT_Posts::get_post( 'contacts', $contact_id, true, true );
             $maarifa_data = array();
-            if ( isset( $contact['maarifa_data'] ) ) {
+            if ( ! is_wp_error( $contact ) && isset( $contact['maarifa_data'] ) ) {
                 $maarifa_data = maybe_unserialize( $contact['maarifa_data'] );
+            }
+
+            // Without Maarifa data the tile has nothing to show. The theme always
+            // renders the tile wrapper + "Maarifa" header (and only hides it via the
+            // display conditions), so on non-Maarifa contacts it would otherwise
+            // appear as an empty box under "Show Hidden Tiles". Remove the whole
+            // tile section from the DOM so it isn't shown or counted there.
+            if ( empty( $maarifa_data ) ) {
+                ?>
+                <script>
+                    document.addEventListener( 'DOMContentLoaded', function () {
+                        var tile = document.getElementById( 'dt_maarifa' );
+                        if ( tile ) {
+                            tile.remove();
+                        }
+                    } );
+                </script>
+                <?php
+                return;
             }
             ?>
             <style type="text/css">
-                #contact_maarifa_data-tile { font-size: 14px; }
-                #contact_maarifa_data-tile .section-subheader {
-                    border-bottom: solid 1px #d3d3d3;
+                #dt_maarifa-tile p {
+                    margin-bottom: 0;
                 }
                 .ip-location-details dl {
                     display: flex;
