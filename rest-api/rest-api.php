@@ -669,32 +669,29 @@ class DT_Maarifa_Endpoints
 public function cleanup_duplicates( WP_REST_Request $request ) {
 
         $params = $request->get_json_params() ?? [];
-
         $post_id    = isset( $params['post_id'] ) ? (int) $params['post_id'] : null;
         $start_date = isset( $params['start_date'] ) ? sanitize_text_field( $params['start_date'] ) : null;
         $end_date   = isset( $params['end_date'] ) ? sanitize_text_field( $params['end_date'] ) : null;
         $dry_run    = isset( $params['dry_run'] ) ? filter_var( $params['dry_run'], FILTER_VALIDATE_BOOLEAN ) : true;
 
-        // Validação: OU post_id OU start_date+end_date
         if ( $post_id && ( $start_date || $end_date ) ) {
-            dt_write_log( 'Cleanup_duplicates: ' . json_encode( 'Use post_id OU start_date/end_date, não ambos.' ) );
+            dt_write_log( 'Cleanup_duplicates: ' . json_encode( 'Use post_id or start_date/end_date, not both.' ) );
             return [
-                'status'  => 'erro',
-                'message' => 'Use post_id OU start_date/end_date, não ambos.',
+                'status'  => 'Error',
+                'message' => 'Use post_id or start_date/end_date, not both.',
             ];
         }
         if ( $start_date && !$end_date ) {
-            dt_write_log( 'Cleanup_duplicates: ' . json_encode( 'start_date exige end_date também' ) );
+            dt_write_log( 'Cleanup_duplicates: ' . json_encode( 'start_date also needs end_date.' ) );
 
             return [
-                'status'  => 'erro',
-                'message' => 'start_date exige end_date também.',
+                'status'  => 'Error',
+                'message' => 'start_date also needs end_date.',
             ];
         }
 
         global $wpdb;
 
-        // WHERE com alias na outer (c.) e sem alias na inner subquery
         $inner_conditions = [ "comment_type = 'maarifa'" ];
         $outer_conditions = [ "c.comment_type = 'maarifa'" ];
         $query_params = [];
@@ -740,11 +737,11 @@ public function cleanup_duplicates( WP_REST_Request $request ) {
         $duplicates = $wpdb->get_results( $sql );
 
         if ( empty( $duplicates ) ) {
-            dt_write_log( 'Cleanup_duplicates: ' . json_encode( 'Nenhuma duplicata encontrada' ) );
+            dt_write_log( 'Cleanup_duplicates: ' . json_encode( 'No duplicates found.' ) );
 
             return [
-                'status'  => 'ok',
-                'message' => 'Nenhuma duplicata encontrada.',
+                'status'  => 'Ok',
+                'message' => 'No duplicates found.',
                 'dry_run' => $dry_run,
             ];
         }
@@ -799,13 +796,13 @@ public function cleanup_duplicates( WP_REST_Request $request ) {
         $summary = [
             'status'         => 'ok',
             'dry_run'        => $dry_run,
-            'total_grupos_com_duplicatas' => $total_kept,
-            'total_comments_para_apagar'  => $total_deleted,
-            'total_contacts_afetados'     => count( $affected_posts ),
-            'contacts_afetados'           => $affected_posts,
-            'comment_ids_para_apagar'     => $deleted_ids,
-            'erros'                       => $errors,
-            'filtros_aplicados'           => [
+            'total_groups_with_duplicates' => $total_kept,
+            'total_comments_to_delete'  => $total_deleted,
+            'total_contacts_afected'     => count( $affected_posts ),
+            'posts_afected'           => $affected_posts,
+            'comment_ids_to_delete'     => $deleted_ids,
+            'errors'                       => $errors,
+            'filters_applied'           => [
                 'post_id'    => $post_id,
                 'start_date' => $start_date,
                 'end_date'   => $end_date,
@@ -813,9 +810,9 @@ public function cleanup_duplicates( WP_REST_Request $request ) {
         ];
 
         if ( $dry_run ) {
-            $summary['mensagem'] = 'MODO DRY-RUN — nada foi apagado.';
+            $summary['message'] = 'MODE DRY-RUN — Nothing was deleted.';
         } else {
-            $summary['mensagem'] = "Removidos {$total_deleted} comments duplicados de {$total_kept} grupos em " . count( $affected_posts ) . " contatos.";
+            $summary['message'] = "Total of {$total_deleted} removed; Total number of groups with duplicates of {$total_kept} in " . count( $affected_posts ) . " contacts.";
             dt_write_log( 'Cleanup_duplicates: ' . json_encode( $summary ) );
         }
 
