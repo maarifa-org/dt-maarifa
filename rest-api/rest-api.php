@@ -591,27 +591,17 @@ class DT_Maarifa_Endpoints
                 $comment_date = $args['comment_date'] ?? '';
 
                 global $wpdb;
-                $query_parts = [
-                    "SELECT comment_ID FROM $wpdb->comments",
-                    'WHERE comment_post_ID = %d',
-                    'AND comment_content = %s',
-                    'AND comment_type = %s'
-                ];
-                $query_params = [ $post_id, $comment, $type ];
+                $query_parts =
+                    'SELECT comment_ID FROM '.$wpdb->comments.' WHERE comment_post_ID ='.$post_id.
+                    ' AND comment_content ='.$comment.' AND comment_type ='.$type;
 
                 if ( !empty( $comment_date ) ) {
-                    $query_parts[] = 'AND ( comment_date_gmt = %s OR comment_date = %s )';
-                    $query_params[] = $comment_date;
-                    $query_params[] = $comment_date;
+                    $query_parts .= 'AND ( comment_date_gmt ='. $comment_date.' OR comment_date ='. $comment_date.' )';
+
                 }
 
-                $query_parts[] = 'LIMIT 1';
-                $existing_id = $wpdb->get_var(
-                    $wpdb->prepare(
-                        implode( ' ', $query_parts ),
-                        $query_params
-                    )
-                );
+                $query_parts .= 'LIMIT 1';
+                $existing_id = $wpdb->get_var( $wpdb->prepare( $query_parts ) );
 
                 if ( $existing_id ) {
                     dt_write_log( 'Add_interactions: duplicate SKIPPED. Post: ' . $post_id . ' CommentID: ' . $existing_id );
@@ -659,7 +649,7 @@ class DT_Maarifa_Endpoints
         $params = [ $post_id, $content, $comment_type ];
 
         if ( !empty( $date ) ) {
-            $query .= ' AND ( comment_date = %s OR comment_date_gmt = %s )';
+            $query .= !' AND ( comment_date = %s OR comment_date_gmt = %s )';
             $params[] = $date;
             $params[] = $date;
         }
