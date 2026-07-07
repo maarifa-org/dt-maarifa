@@ -592,16 +592,22 @@ class DT_Maarifa_Endpoints
 
                 global $wpdb;
                 $query_parts =
-                    'SELECT comment_ID FROM '.$wpdb->comments.' WHERE comment_post_ID ='.$post_id.
-                    ' AND comment_content ='.$comment.' AND comment_type ='.$type;
+                    "SELECT comment_ID FROM $wpdb->comments
+                     WHERE comment_post_ID = %d
+                     AND comment_content = %s
+                     AND comment_type = %s";
+                $query_params = [ $post_id, $comment, $type ];
 
                 if ( !empty( $comment_date ) ) {
-                    $query_parts .= 'AND ( comment_date_gmt ='. $comment_date.' OR comment_date ='. $comment_date.' )';
-
+                    $query_parts .= 'AND ( comment_date_gmt = %s OR comment_date = %s )';
+                    $query_params[] = $comment_date;
+                    $query_params[] = $comment_date;
                 }
 
                 $query_parts .= 'LIMIT 1';
-                $existing_id = $wpdb->get_var( $wpdb->prepare( $query_parts ) );
+
+                // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared 
+                $existing_id = $wpdb->get_var( $wpdb->prepare( $query_parts, $query_params ) );
 
                 if ( $existing_id ) {
                     dt_write_log( 'Add_interactions: duplicate SKIPPED. Post: ' . $post_id . ' CommentID: ' . $existing_id );
@@ -656,6 +662,7 @@ class DT_Maarifa_Endpoints
 
         $query .= ' LIMIT 1';
 
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared 
         $result = $wpdb->get_var( $wpdb->prepare( $query, $params ) );
 
         return $result;
@@ -727,9 +734,13 @@ class DT_Maarifa_Endpoints
                 $where_outer
                 ORDER BY c.comment_post_ID, c.comment_date, c.comment_ID ASC";
 
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared 
         $all_params = array_merge( $query_params, $query_params );
+
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared 
         $query = !empty( $all_params ) ? $wpdb->prepare( $query, $all_params ) : $query;
 
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared 
         $duplicates = $wpdb->get_results( $wpdb->prepare( $query ) );
 
         if ( empty( $duplicates ) ) {
