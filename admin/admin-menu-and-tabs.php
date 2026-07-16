@@ -452,7 +452,7 @@ class DT_Maarifa_Del_Dupl_Interactions
                         url: '<?php echo esc_url_raw( rest_url( 'dt-maarifa/v1/cleanup-duplicates' ) ); ?>',
                         method: 'POST',
                         beforeSend: function(xhr) {
-                            xhr.setRequestHeader('X-WP-Nonce', '<?php echo wp_create_nonce('wp_rest'); ?>');
+                            xhr.setRequestHeader('X-WP-Nonce', '<?php echo esc_js( wp_create_nonce( 'wp_rest' ) ); ?>');
                         },
                         data: JSON.stringify(data),
                         contentType: 'application/json'
