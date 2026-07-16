@@ -126,13 +126,13 @@ class DT_Maarifa_Endpoints
             ]
         );
 
-        //cleanup_duplicates - Remove duplicate maarifa interactions/comments
+        // cleanup_duplicates - Remove duplicate maarifa interactions/comments
         register_rest_route(
             $this->namespace, '/cleanup-duplicates', [
                 [
                     'methods'  => 'POST',
                     'callback' => [ $this, 'cleanup_duplicates' ],
-                    'permission_callback' => '__return_true',
+                    'permission_callback' => [ $this, 'check_cleanup_permission' ],
                 ]
             ]
         );
@@ -559,115 +559,112 @@ class DT_Maarifa_Endpoints
         $type = 'maarifa';
         $post_id = (int) $url_params['id'];
 
-        if ( !empty( $body ) ) {
-            $result = null;
-            $created = [];
-            $created_hashes = [];
-
-            foreach ( $body as $value ) {
-                $args = [];
-                $comment = '';
-
-                if ( isset( $value['date'] ) ) {
-                    $args['comment_date'] = dt_format_date( $value['date'], 'Y-m-d H:i:s' );
-                }
-
-                if ( isset( $value['responder_name'] ) ) {
-                    $args['user_id'] = $value['responder_name'];
-                }
-
-                if ( !isset( $value['comment'] ) || empty( $value['comment'] ) ) {
-                    continue;
-                }
-                $comment = (string) $value['comment'];
-                $args['comment'] = $comment;
-
-                if ( isset( $value['meta'] ) ) {
-                    $args['comment_meta'] = $value['meta'];
-                }
-
-                // --- DEDUPLICAÇÃO: verifica por post_id + conteúdo + tipo ---
-                // Usa comment_date_gmt que é mais consistente
-                $comment_date = $args['comment_date'] ?? '';
-
-                global $wpdb;
-                $query_parts =
-                    "SELECT comment_ID FROM $wpdb->comments
-                     WHERE comment_post_ID = %d
-                     AND comment_content = %s
-                     AND comment_type = %s";
-                $query_params = [ $post_id, $comment, $type ];
-
-                if ( !empty( $comment_date ) ) {
-                    $query_parts .= 'AND ( comment_date_gmt = %s OR comment_date = %s )';
-                    $query_params[] = $comment_date;
-                    $query_params[] = $comment_date;
-                }
-
-                $query_parts .= 'LIMIT 1';
-
-                // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared 
-                $existing_id = $wpdb->get_var( $wpdb->prepare( $query_parts, $query_params ) );
-
-                if ( $existing_id ) {
-                    dt_write_log( 'Add_interactions: duplicate SKIPPED. Post: ' . $post_id . ' CommentID: ' . $existing_id );
-                    continue;
-                }
-
-                $result = DT_Posts::add_post_comment( $url_params['post_type'], $post_id, $comment, $type, $args, true, $silent );
-
-                if ( !is_wp_error( $result ) ) {
-                    $created[] = $result;
-                }
-            }
-
-            if ( !empty( $created ) ) {
-                $last = end( $created );
-                $ret = get_comment( $last )->to_array();
-                unset( $ret['children'] );
-                unset( $ret['populated_children'] );
-                unset( $ret['post_fields'] );
-                $ret['comment_meta'] = get_comment_meta( $ret['comment_ID'] );
-                return $ret;
-            }
-
-            if ( is_wp_error( $result ) ) {
-                dt_write_log( 'Add_interactions is_wp_error' );
-                return $result;
-            }
+        if ( empty( $body ) ) {
+            return null;
         }
+
+        $last_result = null;
+        $errors = [];
+
+        foreach ( $body as $value ) {
+            $args = [];
+            $comment = '';
+
+            if ( isset( $value['date'] ) ) {
+                $args['comment_date'] = dt_format_date( $value['date'], 'Y-m-d H:i:s' );
+            }
+
+            if ( isset( $value['responder_name'] ) ) {
+                $args['user_id'] = $value['responder_name'];
+            }
+
+            if ( !isset( $value['comment'] ) || empty( $value['comment'] ) ) {
+                continue;
+            }
+            $comment = (string) $value['comment'];
+            $args['comment'] = $comment;
+
+            if ( isset( $value['meta'] ) ) {
+                $args['comment_meta'] = $value['meta'];
+            }
+
+            // Deduplication check
+            $comment_date = $args['comment_date'] ?? '';
+
+            global $wpdb;
+            $query = "SELECT comment_ID FROM $wpdb->comments
+                    WHERE comment_post_ID = %d
+                    AND comment_content = %s
+                    AND comment_type = %s";
+            $query_params = [ $post_id, $comment, $type ];
+
+            if ( !empty( $comment_date ) ) {
+                $query .= ' AND ( comment_date_gmt = %s OR comment_date = %s )';
+                $query_params[] = $comment_date;
+                $query_params[] = $comment_date;
+            }
+            $query .= ' LIMIT 1';
+
+            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared 
+            $existing_id = $wpdb->get_var( $wpdb->prepare( $query, $query_params ) );
+
+            if ( $existing_id ) {
+                dt_write_log( 'Add_interactions: duplicate SKIPPED. Post: ' . $post_id . ' CommentID: ' . $existing_id );
+                $last_result = $existing_id; // Track as processed
+                continue;
+            }
+
+            // Create comment
+            $result = DT_Posts::add_post_comment( $url_params['post_type'], $post_id, $comment, $type, $args, true, $silent );
+
+            // Record errors instead of stopping
+            if ( is_wp_error( $result ) ) {
+                dt_write_log( 'Add_interactions: error encountered for comment: '. $comment );
+                $errors[] = $result;
+                continue; // Move on to next interaction
+            }
+
+            $last_result = $result;
+        }
+
+        // Return error if any occurred, otherwise return last success
+        if ( !empty( $errors ) ) {
+            // Returns the first error encountered, but logs all of them
+            dt_write_log( 'Add_interactions: finished with errors: ' . count( $errors ) );
+            return $errors[0];
+        }
+
+        if ( $last_result ) {
+            $ret = get_comment( $last_result )->to_array();
+            unset( $ret['children'] );
+            unset( $ret['populated_children'] );
+            unset( $ret['post_fields'] );
+            $ret['comment_meta'] = get_comment_meta( $ret['comment_ID'] );
+            return $ret;
+        }
+
         return null;
     }
 
-    public function comment_exists_exact( $post_id, $content, $date, $comment_type ) {
-        global $wpdb;
-
-        if ( empty( $content ) ) {
-            return false;
+    /**
+     * Permission callback for the cleanup_duplicates endpoint.
+     * Restricts access to users with 'manage_dt' capability.
+     *
+     * @return boolean|WP_Error
+     */
+    public function check_cleanup_permission() {
+        // Check if the current user has the 'manage_dt' capability
+        if ( current_user_can( 'manage_dt' ) ) {
+            return true;
         }
 
-        $query = "SELECT comment_ID
-                FROM $wpdb->comments
-                WHERE comment_post_ID = %d
-                AND comment_content = %s
-                AND comment_type = %s";
-
-        $params = [ $post_id, $content, $comment_type ];
-
-        if ( !empty( $date ) ) {
-            $query .= !' AND ( comment_date = %s OR comment_date_gmt = %s )';
-            $params[] = $date;
-            $params[] = $date;
-        }
-
-        $query .= ' LIMIT 1';
-
-        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared 
-        $result = $wpdb->get_var( $wpdb->prepare( $query, $params ) );
-
-        return $result;
+        // Return a WP_Error for non-authorized users, which provides a 403 response
+        return new \WP_Error(
+            'rest_forbidden',
+            __( 'You do not have permission to run this maintenance task.' ),
+            [ 'status' => 403 ]
+        );
     }
-
 
     public function cleanup_duplicates( WP_REST_Request $request ) {
 
@@ -675,21 +672,41 @@ class DT_Maarifa_Endpoints
         $post_id    = isset( $params['post_id'] ) ? (int) $params['post_id'] : null;
         $start_date = isset( $params['start_date'] ) ? sanitize_text_field( $params['start_date'] ) : null;
         $end_date   = isset( $params['end_date'] ) ? sanitize_text_field( $params['end_date'] ) : null;
+        $all        = isset( $params['all'] ) ? filter_var( $params['all'], FILTER_VALIDATE_BOOLEAN ) : false;
         $dry_run    = isset( $params['dry_run'] ) ? filter_var( $params['dry_run'], FILTER_VALIDATE_BOOLEAN ) : true;
 
-        if ( $post_id && ( $start_date || $end_date ) ) {
-            dt_write_log( 'Cleanup_duplicates: ' . json_encode( 'Use post_id or start_date/end_date, not both.' ) );
+        $has_id    = !empty( $post_id );
+        $has_dates = !empty( $start_date ) && !empty( $end_date );
+
+        // 1. Validation: Only one mode allowed
+        $active_modes = 0;
+        if ( $has_id ) { $active_modes++;
+        }
+        if ( $has_dates ) { $active_modes++;
+        }
+        if ( $all ) { $active_modes++;
+        }
+
+        if ( $active_modes > 1 ) {
             return [
                 'status'  => 'Error',
-                'message' => 'Use post_id or start_date/end_date, not both.',
+                'message' => 'Use post_id OR start_date/end_date OR all, not multiple options simultaneously.',
             ];
         }
-        if ( $start_date && !$end_date ) {
-            dt_write_log( 'Cleanup_duplicates: ' . json_encode( 'start_date also needs end_date.' ) );
 
+        // 2. Validation: Date range completeness
+        if ( ( !empty( $start_date ) && empty( $end_date ) ) || ( empty( $start_date ) && !empty( $end_date ) ) ) {
             return [
                 'status'  => 'Error',
-                'message' => 'start_date also needs end_date.',
+                'message' => 'start_date and end_date must be provided together.',
+            ];
+        }
+
+        // 3. Validation: Mandatory filter or explicit 'all'
+        if ( !$has_id && !$has_dates && !$all ) {
+            return [
+                'status'  => 'Error',
+                'message' => 'You must provide a post_id, a date range, or set "all" to true to run on the entire site.',
             ];
         }
 
@@ -715,8 +732,8 @@ class DT_Maarifa_Endpoints
             $query_params[] = $end_date;
         }
 
-        $where_inner = 'WHERE ' . implode( ' AND ', $inner_conditions );
-        $where_outer = 'WHERE ' . implode( ' AND ', $outer_conditions );
+        $where_inner = ' WHERE ' . implode( ' AND ', $inner_conditions );
+        $where_outer = ' WHERE ' . implode( ' AND ', $outer_conditions );
 
         $query = "SELECT c.comment_ID, c.comment_post_ID, c.comment_content, c.comment_date
                 FROM $wpdb->comments c
@@ -781,10 +798,14 @@ class DT_Maarifa_Endpoints
             if ( !$dry_run ) {
                 foreach ( $to_delete as $del ) {
                     $del_id = (int) $del->comment_ID;
-                    $wpdb->delete( $wpdb->commentmeta, [ 'comment_id' => $del_id ] );
-                    $result = $wpdb->delete( $wpdb->comments, [ 'comment_ID' => $del_id ] );
-                    if ( $result === false ) {
+
+                    // Use wp_delete_comment which handles commentmeta, caches, and counts automatically
+                    // The second parameter 'true' forces permanent deletion (skipping trash)
+                    $result = wp_delete_comment( $del_id, true );
+
+                    if ( !$result ) {
                         $errors[] = $del_id;
+                        dt_write_log( 'Cleanup_duplicates: failed to delete comment ' . $del_id );
                     } else {
                         $deleted_ids[] = $del_id;
                         $total_deleted++;
@@ -803,10 +824,10 @@ class DT_Maarifa_Endpoints
         $summary = [
             'status'         => 'ok',
             'dry_run'        => $dry_run,
-            'total_groups_with_duplicates' => $total_kept,
+            'comment_groups_with_duplicates' => $total_kept,
             'total_comments_to_delete'  => $total_deleted,
-            'total_contacts_afected'     => count( $affected_posts ),
-            'posts_afected'           => $affected_posts,
+            'total_contacts_affected'     => count( $affected_posts ),
+            'posts_affected'           => $affected_posts,
             'comment_ids_to_delete'     => $deleted_ids,
             'errors'                       => $errors,
             'filters_applied'           => [
@@ -819,7 +840,7 @@ class DT_Maarifa_Endpoints
         if ( $dry_run ) {
             $summary['message'] = 'MODE DRY-RUN — Nothing was deleted.';
         } else {
-            $summary['message'] = "Total of {$total_deleted} removed; Total number of groups with duplicates of {$total_kept} in " . count( $affected_posts ) . ' contacts.';
+            $summary['message'] = "Total of {$total_deleted} removed. Total number of comment groups with duplicates: {$total_kept} in " . count( $affected_posts ) . ' contacts.';
             dt_write_log( 'Cleanup_duplicates: ' . json_encode( $summary ) );
         }
 
