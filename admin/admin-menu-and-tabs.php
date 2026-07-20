@@ -78,7 +78,7 @@ class DT_Maarifa_Menu {
                 <?php if ( $reporting_plugin_active ): ?>
                 <a href="<?php echo esc_attr( $link ) . 'reporting' ?>" class="nav-tab <?php ( $tab == 'reporting' || ! isset( $tab ) ) ? esc_attr_e( 'nav-tab-active', 'dt_maarifa' ) : print ''; ?>"><?php esc_attr_e( 'Reporting', 'dt_maarifa' ) ?></a>
                 <?php endif; ?>
-                <a href="<?php echo esc_attr( $link ) . 'del_dupl_interactions' ?>" class="nav-tab <?php ( $tab == 'del_dupl_interactions' || ! isset( $tab ) ) ? esc_attr_e( 'nav-tab-active', 'dt_maarifa' ) : print ''; ?>"><?php esc_attr_e( 'Deletes Duplicated Interactions', 'dt_maarifa' ) ?></a>               
+                <a href="<?php echo esc_attr( $link ) . 'clean_duplicates' ?>" class="nav-tab <?php ( $tab == 'clean_duplicates' || ! isset( $tab ) ) ? esc_attr_e( 'nav-tab-active', 'dt_maarifa' ) : print ''; ?>"><?php esc_attr_e( 'Clean Duplicates', 'dt_maarifa' ) ?></a>               
             </h2>
 
             <?php
@@ -91,8 +91,8 @@ class DT_Maarifa_Menu {
                     $object = new DT_Maarifa_Tab_Reporting();
                     $object->content();
                     break;
-                case 'del_dupl_interactions':
-                    $object = new DT_Maarifa_Del_Dupl_Interactions();
+                case 'clean_duplicates':
+                    $object = new DT_Maarifa_Clean_Duplicate_Interactions();
                     $object->content();
                     break;
                 default:
@@ -410,9 +410,9 @@ class DT_Maarifa_Tab_Reporting
     }
 }
 /**
- * Class DT_Maarifa_Del_Dupl_Interactions
+ * Class DT_Maarifa_Clean_Duplicate_Interactions
  */
-class DT_Maarifa_Del_Dupl_Interactions
+class DT_Maarifa_Clean_Duplicate_Interactions
 {
     public function content() {
         if ( !current_user_can( 'manage_dt' ) ) {

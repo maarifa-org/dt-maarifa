@@ -671,12 +671,12 @@ class DT_Maarifa_Endpoints
         $params = $request->get_json_params() ?? [];
         $post_id    = isset( $params['post_id'] ) ? (int) $params['post_id'] : null;
         $start_date = isset( $params['start_date'] ) ? sanitize_text_field( $params['start_date'] ) : null;
-        $end_date   = isset( $params['end_date'] ) ? sanitize_text_field( $params['end_date'] ) : null;
+        $end_date   = isset( $params['end_date'] ) ? sanitize_text_field( $params['end_date'] ) : null;        
 
         //Ensures that the end period includes the entire day.
         if ( $end_date && strpos( $end_date, ':' ) === false ) {
             $end_date .= ' 23:59:59';
-        }
+        }        
         $all        = isset( $params['all'] ) ? filter_var( $params['all'], FILTER_VALIDATE_BOOLEAN ) : false;
         $dry_run    = isset( $params['dry_run'] ) ? filter_var( $params['dry_run'], FILTER_VALIDATE_BOOLEAN ) : true;
 
@@ -763,7 +763,7 @@ class DT_Maarifa_Endpoints
         $query = !empty( $all_params ) ? $wpdb->prepare( $query, $all_params ) : $query;
 
         // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared 
-        $duplicates = $wpdb->get_results( $wpdb->prepare( $query ) );
+        $duplicates = $wpdb->get_results( $query );
 
         if ( empty( $duplicates ) ) {
             dt_write_log( 'Cleanup_duplicates: ' . json_encode( 'No duplicates found.' ) );
@@ -814,11 +814,11 @@ class DT_Maarifa_Endpoints
                     } else {
                         $deleted_ids[] = $del_id;
                         $total_deleted++;
-                        dt_write_log( sprintf(
-                            'Cleanup_duplicates: Post ID %d (Content snippet: %s) - DELETED comment ID %d ',
-                            (int) $del->comment_post_ID,
-                            $del_id,
-                        substr( $del->comment_content, 0, 30 )));
+                        dt_write_log( sprintf( 
+                            'Cleanup_duplicates: Post ID %d (Content snippet: %s) - DELETED comment ID %d ', 
+                            (int)$del->comment_post_ID,
+                            $del_id,                              
+                            substr($del->comment_content, 0, 30))); 
                     }
                 }
             } else {
