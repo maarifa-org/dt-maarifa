@@ -78,6 +78,7 @@ class DT_Maarifa_Menu {
                 <?php if ( $reporting_plugin_active ): ?>
                 <a href="<?php echo esc_attr( $link ) . 'reporting' ?>" class="nav-tab <?php ( $tab == 'reporting' || ! isset( $tab ) ) ? esc_attr_e( 'nav-tab-active', 'dt_maarifa' ) : print ''; ?>"><?php esc_attr_e( 'Reporting', 'dt_maarifa' ) ?></a>
                 <?php endif; ?>
+                <a href="<?php echo esc_attr( $link ) . 'clean_duplicates' ?>" class="nav-tab <?php ( $tab == 'clean_duplicates' || ! isset( $tab ) ) ? esc_attr_e( 'nav-tab-active', 'dt_maarifa' ) : print ''; ?>"><?php esc_attr_e( 'Clean Duplicates', 'dt_maarifa' ) ?></a>               
             </h2>
 
             <?php
@@ -88,6 +89,10 @@ class DT_Maarifa_Menu {
                     break;
                 case 'reporting':
                     $object = new DT_Maarifa_Tab_Reporting();
+                    $object->content();
+                    break;
+                case 'clean_duplicates':
+                    $object = new DT_Maarifa_Clean_Duplicate_Interactions();
                     $object->content();
                     break;
                 default:
@@ -402,5 +407,64 @@ class DT_Maarifa_Tab_Reporting
                 }
             }
         }
+    }
+}
+/**
+ * Class DT_Maarifa_Clean_Duplicate_Interactions
+ */
+class DT_Maarifa_Clean_Duplicate_Interactions
+{
+    public function content() {
+        if ( !current_user_can( 'manage_dt' ) ) {
+            return;
+        }
+        ?>
+        <div class="wrap">
+            <h1>Cleanup Duplicated Interactions</h1>
+            <p>Use this tool to remove duplicate interactions of type 'maarifa'.</p>
+            
+            <div style="background: #fff; padding: 20px; border: 1px solid #ccd0d4; max-width: 600px;">
+                <div id="cleanup-form">
+                    <p><strong>Filter Options:</strong></p>
+                    <p><input type="number" id="post_id" placeholder="Post ID (Contact ID)"></p>
+                    <p><input type="date" id="start_date" placeholder="Start Date"> to <input type="date" id="end_date" placeholder="End Date"></p>                    
+                    <p><input type="checkbox" id="dry_run" checked> <label for="dry_run">Dry Run (Preview mode)</label></p>
+                    
+                    <button id="run-cleanup" class="button button-primary">Run Cleanup</button>
+                </div>
+
+                <div id="cleanup-result" style="margin-top: 20px; display:none; padding: 10px; border: 1px solid #ccc;"></div>
+            </div>
+
+            <script type="text/javascript">
+            jQuery(document).ready(function($) {
+                $('#run-cleanup').on('click', function() {
+                    var data = {
+                        post_id: $('#post_id').val() || null,
+                        start_date: $('#start_date').val() || null,
+                        end_date: $('#end_date').val() || null,
+                        dry_run: $('#dry_run').is(':checked')
+                    };
+
+                    $('#cleanup-result').text('Running... please wait.').show();
+
+                    $.ajax({
+                        url: '<?php echo esc_url_raw( rest_url( 'dt-maarifa/v1/cleanup-duplicates' ) ); ?>',
+                        method: 'POST',
+                        beforeSend: function(xhr) {
+                            xhr.setRequestHeader('X-WP-Nonce', '<?php echo esc_js( wp_create_nonce( 'wp_rest' ) ); ?>');
+                        },
+                        data: JSON.stringify(data),
+                        contentType: 'application/json'
+                    }).done(function(response) {
+                        $('#cleanup-result').html('<pre>' + JSON.stringify(response, null, 2) + '</pre>');
+                    }).fail(function(xhr) {
+                        $('#cleanup-result').html('<p style="color:red">Error: ' + xhr.responseJSON.message + '</p>');
+                    });
+                });
+            });
+            </script>
+        </div>
+        <?php
     }
 }
