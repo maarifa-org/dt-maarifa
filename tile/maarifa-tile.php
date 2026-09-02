@@ -68,6 +68,7 @@ class Disciple_Tools_Maarifa_Tile
             $fields['responders_name'] = [
                 'name' => 'Maarifa Responders',
                 'type' => 'tags',
+                'default'     => [],
                 'icon' => '/wp-content/themes/disciple-tools-theme/dt-assets/images/tag.svg',
                 'placeholder' => 'Maarifa Responders',
                 'readonly' => true,
