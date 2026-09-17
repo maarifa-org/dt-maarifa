@@ -374,8 +374,53 @@ class Disciple_Tools_Maarifa_Hooks
                     $audio_url = str_replace( 'Type: Voicemail', '', $comment['comment_content'] );
                     $audio_url = trim( preg_replace( '/Responder: \S+/m', '', $audio_url ) );
 
+                    $full_url = $audio_url;
+
+                    // If the audio_url is not a full URL, prepend the media host
+                    if ( !str_starts_with( $audio_url, 'http' ) ) {
+                        $prefix = $media_host;
+
+                        // If the audio_url contains a date in the format PTT-YYYYMMDD, extract the year, month, and date
+                        $date_parts = null;
+                        if ( preg_match( '/^PTT-(\d{4})(\d{2})(\d{2})/', $audio_url, $matches ) ) {
+                            $date_parts = [
+                                'year'  => $matches[1],
+                                'month' => $matches[2],
+                                'date'  => $matches[3],
+                            ];
+                        }
+
+                        // Replace placeholders in the media host URL with actual date values
+                        if ( str_contains( $media_host, '{year}' ) ) {
+                            if ( !empty( $date_parts ) && isset( $date_parts['year'] ) ) {
+                                $prefix = str_replace( '{year}', $date_parts['year'], $prefix );
+                            } else {
+                                $prefix = str_replace( '{year}', '', $prefix );
+                            }
+                        }
+                        if ( str_contains( $media_host, '{month}' ) && !empty( $date_parts ) && isset( $date_parts['month'] ) ) {
+                            if ( !empty( $date_parts ) && isset( $date_parts['month'] ) ) {
+                                $prefix = str_replace( '{month}', $date_parts['month'], $prefix );
+                            } else {
+                                $prefix = str_replace( '{month}', '', $prefix );
+                            }
+                        }
+                        if ( str_contains( $media_host, '{date}' ) && !empty( $date_parts ) && isset( $date_parts['date'] ) ) {
+                            if ( !empty( $date_parts ) && isset( $date_parts['date'] ) ) {
+                                $prefix = str_replace( '{date}', $date_parts['date'], $prefix );
+                            } else {
+                                $prefix = str_replace( '{date}', '', $prefix );
+                            }
+                        }
+
+                        // Remove any double slashes that may have been created by the replacement
+                        $prefix = preg_replace( '#(?<!:)//+#', '/', $prefix );
+
+                        $full_url = $prefix . $audio_url;
+                    }
+
                     $comments[$id]['comment_meta']['audio_url'][] = [
-                        'value' => "$media_host$audio_url",
+                        'value' => $full_url,
                     ];
                 }
             }
